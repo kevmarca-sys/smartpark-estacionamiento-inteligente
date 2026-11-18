@@ -49,13 +49,13 @@ export default function FormularioCliente({ alCerrar, alGuardar, placaInicial = 
   }
 
   return (
-    <Modal abierto titulo="Registrar cliente y vehículo" subtitulo="El cliente recibirá su ticket QR por correo en cada visita" alCerrar={alCerrar} ancho="max-w-xl"
+    <Modal abierto titulo="Registrar cliente y vehículo" subtitulo="Se registra una sola vez: en cada visita la cámara lo reconoce por la placa" alCerrar={alCerrar} ancho="max-w-xl"
       pie={<><Boton variante="secundario" onClick={alCerrar}>Cancelar</Boton><Boton type="submit" form="form-cliente" cargando={guardando}>Guardar cliente</Boton></>}>
       <form id="form-cliente" onSubmit={guardar} noValidate className="grid gap-4 sm:grid-cols-2">
         <Campo className="sm:col-span-2" etiqueta="Nombre completo" required value={form.nombres} onChange={cambiar('nombres')} error={errores.nombres} placeholder="María Guamán" />
         <Campo etiqueta="Cédula" inputMode="numeric" maxLength={10} value={form.cedula} onChange={(e) => setForm({ ...form, cedula: e.target.value.replace(/\D/g, '') })} error={errores.cedula} placeholder="0104567896" />
         <Campo etiqueta="Teléfono celular" value={form.telefono} onChange={cambiar('telefono')} error={errores.telefono} placeholder="0987654321" />
-        <Campo className="sm:col-span-2" type="email" etiqueta="Correo electrónico" value={form.correo} onChange={cambiar('correo')} error={errores.correo} placeholder="maria.guaman@correo.ec" ayuda="Para enviarle el ticket con código QR" />
+        <Campo className="sm:col-span-2" type="email" etiqueta="Correo electrónico" value={form.correo} onChange={cambiar('correo')} error={errores.correo} placeholder="maria.guaman@correo.ec" ayuda="Opcional: dato de contacto del cliente" />
         <Campo etiqueta="Placa del vehículo" value={form.placa} onChange={(e) => setForm({ ...form, placa: e.target.value.toUpperCase() })} onBlur={() => setForm((f) => ({ ...f, placa: normalizarPlaca(f.placa) }))} error={errores.placa} placeholder="ABA-1234" />
         <Campo como="select" etiqueta="Tipo de vehículo" opciones={TIPOS_VEHICULO} value={form.tipo} onChange={cambiar('tipo')} />
       </form>
