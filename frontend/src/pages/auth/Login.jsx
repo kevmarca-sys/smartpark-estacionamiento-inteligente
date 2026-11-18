@@ -52,8 +52,8 @@ export default function Login() {
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.2fr_1fr]">
       <section className="relative hidden flex-col justify-between overflow-hidden bg-marino p-10 text-white lg:flex">
-        <img src="/parqueadero.jpg" alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
-        <div className="absolute inset-0 bg-gradient-to-t from-marino-oscuro/90 via-marino-oscuro/50 to-marino-oscuro/10" />
+        <img src="/parqueadero.jpg" alt="" className="absolute inset-0 h-full w-full object-cover opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-marino-oscuro/85 via-marino-oscuro/30 to-transparent" />
         <div className="relative"><Logo /></div>
         <div className="relative max-w-lg">
           <span className="mb-4 inline-block rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">Plataforma de control de acceso vehicular</span>

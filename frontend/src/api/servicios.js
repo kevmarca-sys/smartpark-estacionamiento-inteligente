@@ -30,6 +30,7 @@ export const sesionesApi = {
   consultarCobro: (codigo) => datos(http.get(`/sesiones/${encodeURIComponent(codigo)}/cobro`)),
   salida: (codigo, body) => datos(http.post(`/sesiones/${encodeURIComponent(codigo)}/salida`, body)),
   anular: (codigo, motivo) => datos(http.post(`/sesiones/${encodeURIComponent(codigo)}/anular`, { motivo })),
+  ticket: (codigo) => datos(http.get(`/sesiones/${encodeURIComponent(codigo)}/ticket`)),
 };
 
 export const vehiculosApi = {

@@ -32,10 +32,12 @@ async function anular(req, res) {
 
 async function detalle(req, res) { res.json({ ok: true, datos: await servicio.detalle(req.params.codigo) }); }
 
+async function ticket(req, res) { res.json({ ok: true, datos: await servicio.verTicket(req.params.codigo) }); }
+
 async function comprobante(req, res) {
   const sesion = await servicio.detalle(req.params.codigo);
   if (sesion.estado !== 'CERRADA') throw AppError.businessRule('El comprobante solo está disponible para tickets pagados');
   await comprobantePago(res, sesion);
 }
 
-module.exports = { listar, entrada, consultarSalida, salida, anular, detalle, comprobante };
+module.exports = { listar, entrada, consultarSalida, salida, anular, detalle, ticket, comprobante };

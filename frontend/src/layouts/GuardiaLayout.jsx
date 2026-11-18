@@ -2,11 +2,11 @@
  * Layout del guardia
  *
  * Interfaz móvil para la garita, con navegación inferior entre Inicio, Entrada,
- * Salida y la consulta de espacios disponibles.
+ * Salida, Tickets y la consulta de espacios disponibles.
  */
 
 import { NavLink, Outlet } from 'react-router-dom';
-import { Home, LayoutDashboard, LogIn, LogOut, ParkingSquare, QrCode } from 'lucide-react';
+import { Home, LayoutDashboard, LogIn, LogOut, ParkingSquare, QrCode, Ticket } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import IndicadorEnVivo from '../components/IndicadorEnVivo';
@@ -17,6 +17,7 @@ export default function GuardiaLayout() {
     { a: '/guardia', texto: 'Inicio', icono: Home, fin: true },
     { a: '/guardia/entrada', texto: 'Entrada', icono: LogIn },
     { a: '/guardia/salida', texto: 'Salida', icono: QrCode },
+    { a: '/guardia/tickets', texto: 'Tickets', icono: Ticket },
     { a: '/guardia/espacios', texto: 'Espacios', icono: ParkingSquare },
   ];
   return (

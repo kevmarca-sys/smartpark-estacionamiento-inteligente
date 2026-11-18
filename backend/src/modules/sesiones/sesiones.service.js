@@ -267,6 +267,12 @@ async function detalle(codigo) {
   return sesion;
 }
 
+/** Ticket de una sesión con su código QR, para volver a mostrarlo o imprimirlo. */
+async function verTicket(codigo) {
+  const sesion = await detalle(codigo);
+  return { sesion, qr: await generarQrDataUrl(sesion.codigo_ticket), urlTicket: urlTicket(sesion.codigo_ticket) };
+}
+
 /** Datos públicos del ticket (para la página "Mi ticket" del cliente). Sin datos personales. */
 async function ticketPublico(codigo) {
   const sesion = await repo.buscarPorCodigo(extraerCodigo(codigo));
@@ -301,5 +307,6 @@ async function ticketPublico(codigo) {
 }
 
 module.exports = {
-  listar, registrarEntrada, consultarSalida, registrarSalida, anular, detalle, ticketPublico, extraerCodigo,
+  listar, registrarEntrada, consultarSalida, registrarSalida, anular, detalle,
+  verTicket, ticketPublico, extraerCodigo,
 };

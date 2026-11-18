@@ -1,18 +1,20 @@
 /**
  * Página de sesiones (administrador)
  *
- * Historial de entradas y salidas con filtros, comprobante PDF y anulación.
+ * Historial de tickets: entradas y salidas con filtros, ticket con QR,
+ * comprobante PDF y anulación.
  */
 
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { FileText, XCircle } from 'lucide-react';
+import { FileText, Ticket, XCircle } from 'lucide-react';
 import { abrirPdf, sesionesApi } from '../../api/servicios';
 import useListado from '../../hooks/useListado';
 import useTiempoReal from '../../hooks/useTiempoReal';
 import {
   Boton, Campo, Cargando, Confirmar, EncabezadoPagina, ErrorCarga, EstadoVacio, Insignia, Paginacion, Tabla,
 } from '../../components/ui';
+import VerTicket from '../../components/parqueadero/VerTicket';
 import { ESTADOS_SESION, TIPOS_VEHICULO } from '../../utils/constantes';
 import { dinero, duracion, fechaHora, hoyISO } from '../../utils/formato';
 
@@ -21,6 +23,7 @@ const FILTROS = { q: '', estado: '', desde: hoyISO(13), hasta: hoyISO(0), metodo
 export default function Sesiones() {
   const lista = useListado(sesionesApi.listar, { filtrosIniciales: FILTROS, ordenInicial: { ordenarPor: 'fecha_entrada', direccion: 'desc' } });
   const [anular, setAnular] = useState(null);
+  const [ticket, setTicket] = useState(null);
   const [motivo, setMotivo] = useState('');
   const [procesando, setProcesando] = useState(false);
   useTiempoReal(() => lista.recargar({ silencioso: true }));
@@ -52,6 +55,7 @@ export default function Sesiones() {
     {
       clave: 'acciones', titulo: '', render: (s) => (
         <div className="flex gap-1">
+          <button type="button" onClick={() => setTicket(s.codigo_ticket)} className="rounded p-1.5 text-marino hover:bg-marino-claro" title="Ver ticket" aria-label="Ver ticket"><Ticket className="h-4 w-4" /></button>
           {s.estado === 'CERRADA' && <button type="button" onClick={() => pdf(s)} className="rounded p-1.5 text-marino hover:bg-marino-claro" title="Comprobante PDF" aria-label="Comprobante PDF"><FileText className="h-4 w-4" /></button>}
           {s.estado === 'ABIERTA' && <button type="button" onClick={() => setAnular(s)} className="rounded p-1.5 text-ocupado hover:bg-ocupado-claro" title="Anular" aria-label="Anular sesión"><XCircle className="h-4 w-4" /></button>}
         </div>
@@ -61,7 +65,7 @@ export default function Sesiones() {
 
   return (
     <div>
-      <EncabezadoPagina titulo="Historial de sesiones" descripcion="Entradas, salidas y cobros registrados"
+      <EncabezadoPagina titulo="Historial de tickets" descripcion="Tickets emitidos con su entrada, salida y cobro"
         acciones={lista.datos && <Insignia color="verde" className="!text-sm">Total recaudado en el filtro: {dinero(lista.datos.totalRecaudado)}</Insignia>} />
       <div className="tarjeta">
         <div className="grid gap-3 border-b border-slate-100 p-4 md:grid-cols-3 xl:grid-cols-6">
@@ -80,6 +84,8 @@ export default function Sesiones() {
             : <Tabla columnas={columnas} filas={lista.filas} orden={lista.orden} alOrdenar={lista.ordenarPor} />}
         <Paginacion paginacion={lista.paginacion} alCambiar={lista.setPagina} />
       </div>
+
+      {ticket && <VerTicket codigo={ticket} alCerrar={() => setTicket(null)} />}
 
       <Confirmar abierto={Boolean(anular)} titulo="Anular sesión" textoConfirmar="Anular y liberar espacio" cargando={procesando}
         mensaje={anular && `Se anulará el ticket ${anular.codigo_ticket} de la placa ${anular.placa} y se liberará el espacio ${anular.espacio} sin cobrar.`}

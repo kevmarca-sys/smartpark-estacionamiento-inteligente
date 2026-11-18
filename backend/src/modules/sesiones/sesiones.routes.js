@@ -9,6 +9,7 @@
  *   GET   /api/sesiones/:codigo/cobro        ADMIN / GUARDIA
  *   POST  /api/sesiones/:codigo/salida       ADMIN / GUARDIA
  *   POST  /api/sesiones/:codigo/anular       ADMIN
+ *   GET   /api/sesiones/:codigo/ticket       Autenticado
  *   GET   /api/sesiones/:codigo/comprobante  Autenticado
  */
 
@@ -26,6 +27,7 @@ router.get('/:codigo', controlador.detalle);
 router.get('/:codigo/cobro', autorizar('GUARDIA', 'ADMIN'), controlador.consultarSalida);
 router.post('/:codigo/salida', autorizar('GUARDIA', 'ADMIN'), validar(s.salidaSchema), controlador.salida);
 router.post('/:codigo/anular', autorizar('ADMIN'), validar(s.anularSchema), controlador.anular);
+router.get('/:codigo/ticket', controlador.ticket);
 router.get('/:codigo/comprobante', controlador.comprobante);
 
 module.exports = router;

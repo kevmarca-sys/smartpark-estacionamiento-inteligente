@@ -16,7 +16,7 @@ import IndicadorEnVivo from '../components/IndicadorEnVivo';
 const MENU = [
   { a: '/admin', texto: 'Panel en vivo', icono: LayoutDashboard, fin: true },
   { a: '/admin/espacios', texto: 'Espacios', icono: ParkingSquare },
-  { a: '/admin/sesiones', texto: 'Sesiones', icono: History },
+  { a: '/admin/sesiones', texto: 'Tickets', icono: History },
   { a: '/admin/clientes', texto: 'Clientes y vehículos', icono: Car },
   { a: '/admin/tarifas', texto: 'Tarifas', icono: CircleDollarSign },
   { a: '/admin/reportes', texto: 'Reportes', icono: BarChart3 },
