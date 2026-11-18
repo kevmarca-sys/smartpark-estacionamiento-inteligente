@@ -1,3 +1,9 @@
+/**
+ * Módulo Auditoría · Repositorio
+ *
+ * Acceso a datos con consultas SQL parametrizadas sobre PostgreSQL.
+ */
+
 const { query } = require('../../config/db');
 const { construirOrden } = require('../../utils/paginacion');
 const { crearFiltros } = require('../../utils/filtros');
@@ -13,6 +19,7 @@ async function insertar(db, { usuarioId, usuarioNombre, rol, accion, entidad, re
   );
 }
 
+/** Consulta paginada con filtros por usuario, acción, entidad, fechas y texto. */
 async function listar({ usuarioId, accion, entidad, desde, hasta, q, ordenarPor, direccion }, { limite, offset }) {
   const f = crearFiltros();
   if (usuarioId) f.agregar('a.usuario_id = ?', usuarioId);
@@ -31,6 +38,7 @@ async function listar({ usuarioId, accion, entidad, desde, hasta, q, ordenarPor,
   return { filas: filas.rows, total: total.rows[0].total };
 }
 
+/** Últimas operaciones registradas (actividad reciente del panel). */
 async function recientes(limite = 10) {
   const r = await query(
     `SELECT id, usuario_nombre, accion, entidad, registro_id, detalle, fecha

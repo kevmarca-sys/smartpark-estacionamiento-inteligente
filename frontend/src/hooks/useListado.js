@@ -1,3 +1,9 @@
+/**
+ * Hook useListado
+ *
+ * Gestiona un listado paginado del backend: filtros, búsqueda, orden, página y recarga.
+ */
+
 import { useCallback, useMemo, useState } from 'react';
 import useApi from './useApi';
 import useDebounce from './useDebounce';

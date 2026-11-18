@@ -1,3 +1,9 @@
+/**
+ * Página de auditoría (administrador)
+ *
+ * Consulta el registro de operaciones con filtros por acción, usuario, texto y fechas.
+ */
+
 import { auditoriaApi, usuariosApi } from '../../api/servicios';
 import useListado from '../../hooks/useListado';
 import useApi from '../../hooks/useApi';

@@ -1,3 +1,10 @@
+/**
+ * Componente raíz y enrutamiento
+ *
+ * Define las rutas públicas, las del administrador y las del guardia, cada grupo
+ * protegido por rol. Las páginas se cargan de forma diferida (lazy loading).
+ */
+
 import { lazy, Suspense, useEffect } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';

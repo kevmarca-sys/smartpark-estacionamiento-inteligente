@@ -1,3 +1,9 @@
+/**
+ * Mapa de espacios
+ *
+ * Muestra los espacios por zona con su estado (libre, ocupado, inhabilitado) y la placa.
+ */
+
 import { Accessibility, Bike, Car, Wrench } from 'lucide-react';
 
 const ICONOS = { AUTO: Car, MOTO: Bike, DISCAPACIDAD: Accessibility };

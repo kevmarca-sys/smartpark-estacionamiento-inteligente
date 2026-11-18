@@ -1,3 +1,9 @@
+/**
+ * Layout del administrador
+ *
+ * Menú lateral, buscador global y barra superior con el indicador de tiempo real.
+ */
+
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {

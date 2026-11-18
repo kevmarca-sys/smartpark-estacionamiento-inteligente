@@ -1,3 +1,12 @@
+/**
+ * Módulo Público · Rutas
+ *
+ * Endpoints del módulo, con el rol requerido para cada uno:
+ *
+ *   GET  /api/publico/tickets/:codigo              Público
+ *   GET  /api/publico/tickets/:codigo/comprobante  Público
+ */
+
 const { Router } = require('express');
 const rateLimit = require('express-rate-limit');
 const servicio = require('../sesiones/sesiones.service');

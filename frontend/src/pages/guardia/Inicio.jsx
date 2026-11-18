@@ -1,3 +1,9 @@
+/**
+ * Inicio del guardia
+ *
+ * Accesos a entrada y salida, ocupación actual y últimas operaciones del turno.
+ */
+
 import { Link } from 'react-router-dom';
 import { ArrowRight, Car, LogIn, LogOut, QrCode, ScanLine } from 'lucide-react';
 import { espaciosApi, sesionesApi, tarifasApi } from '../../api/servicios';

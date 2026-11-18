@@ -1,3 +1,10 @@
+/**
+ * Contexto de autenticación
+ *
+ * Guarda el usuario y el token de la sesión, y expone login, logout y el hook useAuth.
+ * Al cargar la aplicación recupera la sesión guardada y valida el token con la API.
+ */
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { authApi, almacenToken } from '../api/servicios';

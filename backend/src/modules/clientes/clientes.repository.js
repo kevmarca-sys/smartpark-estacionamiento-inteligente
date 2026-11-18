@@ -1,7 +1,14 @@
+/**
+ * Módulo Clientes · Repositorio
+ *
+ * Acceso a datos con consultas SQL parametrizadas sobre PostgreSQL.
+ */
+
 const { query } = require('../../config/db');
 const { crearFiltros } = require('../../utils/filtros');
 const { construirOrden } = require('../../utils/paginacion');
 
+/** Clientes con el número de vehículos, búsqueda y paginación. */
 async function listar({ q, ordenarPor, direccion }, { limite, offset }) {
   const f = crearFiltros();
   if (q) f.agregar('(c.nombres ILIKE ? OR c.cedula ILIKE ? OR c.correo ILIKE ? OR v.placa ILIKE ?)', `%${q}%`);
@@ -17,6 +24,7 @@ async function listar({ q, ordenarPor, direccion }, { limite, offset }) {
   return { filas: filas.rows, total: total.rows[0].total };
 }
 
+/** Cliente por id, con la lista de sus vehículos. */
 async function buscarPorId(id) {
   const r = await query('SELECT * FROM clientes WHERE id = $1', [id]);
   if (!r.rows[0]) return null;
@@ -24,6 +32,7 @@ async function buscarPorId(id) {
   return { ...r.rows[0], vehiculos: v.rows };
 }
 
+/** Inserta un cliente (dentro de la transacción recibida). */
 async function crear(db, { nombres, cedula, correo, telefono }) {
   const r = await db.query(
     'INSERT INTO clientes (nombres, cedula, correo, telefono) VALUES ($1, $2, $3, $4) RETURNING *',
@@ -32,6 +41,7 @@ async function crear(db, { nombres, cedula, correo, telefono }) {
   return r.rows[0];
 }
 
+/** Actualiza solo los campos enviados. */
 async function actualizar(id, datos) {
   const r = await query(
     `UPDATE clientes SET nombres = COALESCE($2, nombres),
@@ -47,6 +57,7 @@ async function actualizar(id, datos) {
   return r.rows[0];
 }
 
+/** Elimina el cliente; sus vehículos quedan sin cliente (ON DELETE SET NULL). */
 async function eliminar(id) {
   await query('DELETE FROM clientes WHERE id = $1', [id]);
 }

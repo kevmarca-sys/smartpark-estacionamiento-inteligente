@@ -1,3 +1,7 @@
+/**
+ * Botón reutilizable con variantes de estilo, icono y estado de carga.
+ */
+
 import { Loader2 } from 'lucide-react';
 
 const VARIANTES = {

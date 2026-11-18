@@ -1,3 +1,7 @@
+/**
+ * Página 403: el usuario no tiene permiso para la ruta solicitada.
+ */
+
 import { Link } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 

@@ -1,3 +1,9 @@
+/**
+ * Módulo Reportes · Esquemas de validación (DTO)
+ *
+ * Esquemas Zod que validan y normalizan los datos de entrada antes del controlador.
+ */
+
 const { z } = require('zod');
 
 const fecha = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Fecha no válida (AAAA-MM-DD)');

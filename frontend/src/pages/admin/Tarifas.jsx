@@ -1,3 +1,10 @@
+/**
+ * Página de tarifas (administrador)
+ *
+ * Tarifas base, reglas de tarifa dinámica y simulador de cobro.
+ * El cálculo del simulador lo realiza el backend.
+ */
+
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { Accessibility, Bike, Calculator, Car, Save } from 'lucide-react';

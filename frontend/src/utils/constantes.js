@@ -1,3 +1,10 @@
+/**
+ * Constantes y validaciones compartidas
+ *
+ * Tipos de vehículo, estados, nombres de acciones de auditoría y validaciones
+ * de placa y cédula ecuatorianas (las mismas reglas que aplica el backend).
+ */
+
 export const TIPOS_VEHICULO = [
   { valor: 'AUTO', texto: 'Auto' },
   { valor: 'MOTO', texto: 'Moto' },

@@ -1,3 +1,9 @@
+/**
+ * Estados de interfaz reutilizables
+ *
+ * Cargando, sin resultados, error de carga con reintento y alertas.
+ */
+
 import { AlertCircle, Inbox, Loader2, RefreshCw } from 'lucide-react';
 import Boton from './Boton';
 

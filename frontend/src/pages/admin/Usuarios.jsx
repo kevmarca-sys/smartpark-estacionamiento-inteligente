@@ -1,3 +1,9 @@
+/**
+ * Página de usuarios (administrador)
+ *
+ * Gestión de las cuentas del personal y matriz de permisos por rol.
+ */
+
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Check, Lock, Pencil, UserPlus } from 'lucide-react';

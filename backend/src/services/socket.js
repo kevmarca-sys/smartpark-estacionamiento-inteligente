@@ -1,3 +1,10 @@
+/**
+ * Servicio de tiempo real (Socket.io)
+ *
+ * Sala "personal": administradores y guardias autenticados reciben cada cambio del parqueadero.
+ * Sala "ticket:<codigo>": el cliente recibe las actualizaciones de su propio ticket.
+ */
+
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const env = require('../config/env');
@@ -21,7 +28,7 @@ function iniciarSocket(httpServer) {
         socket.join('personal');
         socket.data.usuario = datos;
       } catch {
-        // token inválido: solo podrá escuchar su ticket público
+        // Token inválido: la conexión solo podrá escuchar su ticket público.
       }
     }
     socket.on('ticket:suscribir', (codigo) => {

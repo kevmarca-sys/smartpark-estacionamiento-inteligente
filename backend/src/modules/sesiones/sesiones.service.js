@@ -1,3 +1,10 @@
+/**
+ * Módulo Sesiones · Servicio
+ *
+ * Ciclo completo de parqueo: entrada, cobro, salida y anulación. Las operaciones que
+ * modifican datos se ejecutan en transacciones con bloqueo de filas.
+ */
+
 const crypto = require('node:crypto');
 const repo = require('./sesiones.repository');
 const vehiculosRepo = require('../vehiculos/vehiculos.repository');
@@ -15,9 +22,8 @@ const { obtenerPaginacion, respuestaPaginada } = require('../../utils/paginacion
 const { generarQrDataUrl, urlTicket } = require('../../services/qr');
 const { normalizarPlaca, esPlacaValida } = require('../../utils/validadores');
 const { emitirCambio, emitirTicket } = require('../../services/socket');
-const { enviarTicket } = require('../../services/correo');
 
-const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sin 0/O ni 1/I para evitar confusiones
+const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Sin 0/O ni 1/I para evitar confusiones al leerlo
 
 /** Código de ticket aleatorio e impredecible (no se puede adivinar el ticket de otra persona). */
 function generarCodigoTicket() {
@@ -54,6 +60,7 @@ async function resolverCodigo(texto) {
   return extraerCodigo(valor);
 }
 
+/** Lista las sesiones con filtros, orden y paginación. */
 async function listar(q) {
   const pag = obtenerPaginacion(q);
   const { filas, total, suma } = await repo.listar(q, pag);
@@ -146,16 +153,6 @@ async function registrarEntrada(ctx, { placa, tipo, espacioCodigo, metodoRegistr
 
   emitirCambio('entrada', { espacio: sesion.espacio, placa: sesion.placa, ticket: sesion.codigo_ticket, resumen });
 
-  // Notificación automática por correo (en segundo plano, no bloquea la respuesta)
-  let correo = { enviado: false };
-  if (sesion.cliente_correo) {
-    correo = { enviado: true, destino: sesion.cliente_correo.replace(/^(.).+(@.+)$/, '$1****$2') };
-    enviarTicket({
-      correo: sesion.cliente_correo, nombre: sesion.cliente, codigo: sesion.codigo_ticket, placa: sesion.placa,
-      espacio: sesion.espacio, fechaEntrada: sesion.fecha_entrada, tarifaHora: vigente.valorHora,
-    }).catch((e) => console.error('[CORREO] No se pudo enviar el ticket:', e.message));
-  }
-
   return {
     sesion,
     asignacion: resultado.asignacion,
@@ -165,7 +162,6 @@ async function registrarEntrada(ctx, { placa, tipo, espacioCodigo, metodoRegistr
     visitas,
     qr: await generarQrDataUrl(sesion.codigo_ticket),
     urlTicket: urlTicket(sesion.codigo_ticket),
-    correo,
   };
 }
 
@@ -188,6 +184,7 @@ async function calcularCobro(sesion, fechaSalida = new Date(), db) {
   });
 }
 
+/** Regla: solo se puede cobrar o anular una sesión que sigue abierta. */
 function validarAbierta(sesion) {
   if (sesion.estado === 'CERRADA') {
     const hora = new Date(sesion.fecha_salida).toLocaleTimeString('es-EC', { timeZone: env.tzNegocio, hour: '2-digit', minute: '2-digit' });
@@ -201,7 +198,7 @@ async function consultarSalida(textoEscaneado) {
   const codigo = await resolverCodigo(textoEscaneado);
   const sesion = await repo.buscarPorCodigo(codigo);
   if (!sesion) throw AppError.notFound(`No existe el ticket ${codigo}`);
-  validarAbierta(sesion); // regla: la salida debe corresponder a un ingreso activo
+  validarAbierta(sesion); // La salida debe corresponder a un ingreso activo
   const calculo = await calcularCobro(sesion);
   return { sesion, calculo };
 }
@@ -246,6 +243,7 @@ async function registrarSalida(ctx, textoEscaneado, { metodo, referencia }) {
   return { sesion, calculo: sesion.detalle_calculo };
 }
 
+/** Anula una sesión abierta (solo administrador) y libera su espacio. */
 async function anular(ctx, codigo, { motivo }) {
   const sesionId = await withTransaction(async (db) => {
     const bloqueada = await repo.bloquearPorCodigo(db, codigo);
@@ -262,6 +260,7 @@ async function anular(ctx, codigo, { motivo }) {
   return sesion;
 }
 
+/** Devuelve una sesión por su código de ticket; 404 si no existe. */
 async function detalle(codigo) {
   const sesion = await repo.buscarPorCodigo(extraerCodigo(codigo));
   if (!sesion) throw AppError.notFound('Ticket no encontrado');

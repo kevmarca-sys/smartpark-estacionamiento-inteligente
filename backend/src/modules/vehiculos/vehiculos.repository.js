@@ -1,3 +1,9 @@
+/**
+ * Módulo Vehículos · Repositorio
+ *
+ * Acceso a datos con consultas SQL parametrizadas sobre PostgreSQL.
+ */
+
 const { query } = require('../../config/db');
 const { crearFiltros } = require('../../utils/filtros');
 const { construirOrden } = require('../../utils/paginacion');
@@ -14,6 +20,7 @@ const SELECT_LISTADO = `
     LEFT JOIN clientes c ON c.id = v.cliente_id
     LEFT JOIN sesiones s ON s.vehiculo_id = v.id`;
 
+/** Vehículos con cliente, visitas, gasto y estado, filtrados y paginados. */
 async function listar({ q, tipo, registrado, frecuentes, ordenarPor, direccion }, { limite, offset }, umbralFrecuente = 10) {
   const f = crearFiltros();
   if (q) f.agregar('(v.placa ILIKE ? OR c.nombres ILIKE ? OR c.cedula ILIKE ?)', `%${q}%`);
@@ -34,6 +41,7 @@ async function listar({ q, tipo, registrado, frecuentes, ordenarPor, direccion }
   return { filas: filas.rows, total: total.rows[0].total };
 }
 
+/** Vehículo por placa, con los datos de su cliente. */
 async function buscarPorPlaca(placa, db = db0) {
   const r = await db.query(
     `SELECT v.*, c.nombres AS cliente, c.correo AS cliente_correo, c.cedula AS cliente_cedula, c.telefono AS cliente_telefono
@@ -43,6 +51,7 @@ async function buscarPorPlaca(placa, db = db0) {
   return r.rows[0];
 }
 
+/** Vehículo por id. */
 async function buscarPorId(id, db = db0) {
   const r = await db.query('SELECT * FROM vehiculos WHERE id = $1', [id]);
   return r.rows[0];
@@ -54,6 +63,7 @@ async function bloquearPorPlaca(db, placa) {
   return r.rows[0];
 }
 
+/** Inserta un vehículo. */
 async function crear(db, { placa, tipo, clienteId }) {
   const r = await db.query(
     'INSERT INTO vehiculos (placa, tipo, cliente_id) VALUES ($1, $2, $3) RETURNING *',
@@ -62,6 +72,7 @@ async function crear(db, { placa, tipo, clienteId }) {
   return r.rows[0];
 }
 
+/** Actualiza el tipo o el cliente del vehículo. */
 async function actualizar(db, id, { tipo, clienteId }) {
   const r = await db.query(
     `UPDATE vehiculos SET tipo = COALESCE($2, tipo),
@@ -72,16 +83,19 @@ async function actualizar(db, id, { tipo, clienteId }) {
   return r.rows[0];
 }
 
+/** Número de visitas cerradas del vehículo (cliente frecuente). */
 async function contarVisitasCerradas(db, vehiculoId) {
   const r = await db.query("SELECT COUNT(*)::int AS n FROM sesiones WHERE vehiculo_id = $1 AND estado = 'CERRADA'", [vehiculoId]);
   return r.rows[0].n;
 }
 
+/** Indica si el vehículo está dentro del parqueadero. */
 async function tieneSesionAbierta(db, vehiculoId) {
   const r = await db.query("SELECT codigo_ticket FROM sesiones WHERE vehiculo_id = $1 AND estado = 'ABIERTA'", [vehiculoId]);
   return r.rows[0];
 }
 
+/** Últimas visitas del vehículo. */
 async function historial(vehiculoId, limite = 15) {
   const r = await query(
     `SELECT s.codigo_ticket, s.fecha_entrada, s.fecha_salida, s.estado, s.total, e.codigo AS espacio
@@ -92,6 +106,7 @@ async function historial(vehiculoId, limite = 15) {
   return r.rows;
 }
 
+/** Total de visitas, gasto acumulado y permanencia promedio. */
 async function estadisticas(vehiculoId) {
   const r = await query(
     `SELECT COUNT(*) FILTER (WHERE estado = 'CERRADA')::int AS visitas,

@@ -1,3 +1,11 @@
+/**
+ * Aplicación Express
+ *
+ * Configura los middlewares globales (seguridad HTTP, CORS, JSON y registro de
+ * peticiones), publica la documentación Swagger y monta las rutas de cada módulo.
+ * Los errores se centralizan en el manejador global al final de la cadena.
+ */
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');

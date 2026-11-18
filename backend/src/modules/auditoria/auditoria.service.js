@@ -1,3 +1,9 @@
+/**
+ * Módulo Auditoría · Servicio
+ *
+ * Registra las operaciones importantes y permite consultarlas con filtros.
+ */
+
 const { pool } = require('../../config/db');
 const repo = require('./auditoria.repository');
 const { obtenerPaginacion, respuestaPaginada } = require('../../utils/paginacion');
@@ -21,6 +27,7 @@ async function registrar(ctx, { accion, entidad, registroId, detalle }, db = poo
   });
 }
 
+/** Lista los registros de auditoría con filtros y paginación. */
 async function listar(query) {
   const pag = obtenerPaginacion(query);
   const { filas, total } = await repo.listar(query, pag);

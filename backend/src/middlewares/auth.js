@@ -1,3 +1,10 @@
+/**
+ * Middlewares de autenticación y autorización
+ *
+ * autenticar: valida el token JWT de cada petición.
+ * autorizar:  restringe una ruta a uno o más roles (ADMIN, GUARDIA).
+ */
+
 const jwt = require('jsonwebtoken');
 const env = require('../config/env');
 const AppError = require('../utils/AppError');

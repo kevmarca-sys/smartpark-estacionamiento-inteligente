@@ -1,3 +1,7 @@
+/**
+ * Tarjeta de indicador (KPI) del panel del administrador.
+ */
+
 export default function TarjetaIndicador({ titulo, valor, detalle, icono: Icono, color = 'text-marino bg-marino-claro', barra }) {
   return (
     <div className="tarjeta p-5">

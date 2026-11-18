@@ -1,3 +1,10 @@
+/**
+ * Configuración del entorno
+ *
+ * Lee las variables del archivo .env (o de la plataforma de despliegue) y las expone
+ * en un único objeto. Las variables obligatorias detienen el arranque si faltan.
+ */
+
 require('dotenv').config();
 
 function requerida(nombre) {
@@ -17,13 +24,6 @@ const env = {
   jwtSecret: requerida('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '8h',
   tzNegocio: process.env.TZ_NEGOCIO || 'America/Guayaquil',
-  smtp: {
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 465),
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-    from: process.env.SMTP_FROM,
-  },
   plateRecognizer: {
     token: process.env.PLATE_RECOGNIZER_TOKEN,
     regions: process.env.PLATE_RECOGNIZER_REGIONS,

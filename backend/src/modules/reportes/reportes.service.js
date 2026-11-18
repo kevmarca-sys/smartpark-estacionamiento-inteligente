@@ -1,3 +1,9 @@
+/**
+ * Módulo Reportes · Servicio
+ *
+ * Indicadores del panel en vivo y reportes de ingresos y ocupación.
+ */
+
 const repo = require('./reportes.repository');
 const espaciosRepo = require('../espacios/espacios.repository');
 const tarifasRepo = require('../tarifas/tarifas.repository');
@@ -28,6 +34,7 @@ async function dashboard() {
   };
 }
 
+/** Reporte de ingresos y ocupación según los filtros indicados. */
 async function resumen(filtros) {
   return { filtros, ...(await repo.resumen(filtros)) };
 }

@@ -1,3 +1,9 @@
+/**
+ * Módulo Tarifas · Servicio
+ *
+ * Configuración de tarifas base y reglas dinámicas, y simulación de cobros.
+ */
+
 const repo = require('./tarifas.repository');
 const espaciosRepo = require('../espacios/espacios.repository');
 const auditoria = require('../auditoria/auditoria.service');
@@ -6,6 +12,7 @@ const env = require('../../config/env');
 const { calcularTarifa, tarifaVigente } = require('../../utils/calculadoraTarifa');
 const { emitirCambio } = require('../../services/socket');
 
+/** Devuelve las tarifas base, las reglas dinámicas y la tarifa vigente. */
 async function obtenerConfiguracion() {
   const [tarifas, reglas, resumen] = await Promise.all([repo.listarTarifas(), repo.listarReglas(), espaciosRepo.resumen()]);
   const ahora = new Date();
@@ -13,6 +20,7 @@ async function obtenerConfiguracion() {
   return { tarifas, reglas, vigentes, ocupacion: resumen.ocupacion };
 }
 
+/** Actualiza la tarifa base de un tipo de vehículo y lo registra en la auditoría. */
 async function actualizarTarifa(ctx, tipo, datos) {
   const antes = await repo.buscarTarifa(tipo);
   if (!antes) throw AppError.notFound('Tipo de vehículo no encontrado');
@@ -28,6 +36,7 @@ async function actualizarTarifa(ctx, tipo, datos) {
   return despues;
 }
 
+/** Activa, desactiva o ajusta una regla de tarifa dinámica. */
 async function actualizarRegla(ctx, codigo, datos) {
   const antes = await repo.buscarRegla(codigo);
   if (!antes) throw AppError.notFound('Regla de tarifa no encontrada');
@@ -57,6 +66,7 @@ async function actualizarRegla(ctx, codigo, datos) {
   return despues;
 }
 
+/** Calcula un cobro hipotético con la configuración actual, sin guardar nada. */
 async function simular({ tipoVehiculo, fechaEntrada, fechaSalida, ocupacion, visitasPrevias }) {
   const [tarifa, reglas] = await Promise.all([repo.buscarTarifa(tipoVehiculo), repo.listarReglas()]);
   return calcularTarifa({

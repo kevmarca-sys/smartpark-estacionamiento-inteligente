@@ -1,3 +1,10 @@
+/**
+ * Registro de salida y cobro (guardia)
+ *
+ * Identifica la sesión por placa (cámara), por QR o de forma manual, muestra el
+ * desglose calculado por el backend y registra el pago.
+ */
+
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Banknote, CheckCircle2, FileText, Keyboard, Landmark, QrCode, Radar, Search } from 'lucide-react';

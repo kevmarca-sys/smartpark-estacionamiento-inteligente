@@ -1,3 +1,16 @@
+/**
+ * Módulo Espacios · Rutas
+ *
+ * Endpoints del módulo, con el rol requerido para cada uno:
+ *
+ *   GET     /api/espacios             Autenticado
+ *   GET     /api/espacios/mapa        Autenticado
+ *   POST    /api/espacios             ADMIN
+ *   PUT     /api/espacios/:id         ADMIN
+ *   PATCH   /api/espacios/:id/estado  ADMIN
+ *   DELETE  /api/espacios/:id         ADMIN
+ */
+
 const { Router } = require('express');
 const { autenticar, autorizar } = require('../../middlewares/auth');
 const validar = require('../../middlewares/validar');

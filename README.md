@@ -89,7 +89,6 @@ npm run dev                 # http://localhost:5173
 > La cámara del navegador solo funciona en **HTTPS** o en **localhost**. Para probar con el celular use la versión desplegada (Vercel ya trae HTTPS).
 
 ### 3.5 Funciones opcionales (variables de entorno del backend)
-- **Correo con el ticket QR:** `SMTP_USER` y `SMTP_PASS` (Gmail con *contraseña de aplicación*).
 - **Lectura de placas con cámara:** `PLATE_RECOGNIZER_TOKEN` (cuenta gratuita en platerecognizer.com).
 
 Si se dejan vacías el sistema funciona igual: no envía correos y el guardia escribe la placa a mano.

@@ -1,3 +1,9 @@
+/**
+ * Módulo Espacios · Repositorio
+ *
+ * Acceso a datos con consultas SQL parametrizadas sobre PostgreSQL.
+ */
+
 const { query } = require('../../config/db');
 const { crearFiltros } = require('../../utils/filtros');
 const { construirOrden } = require('../../utils/paginacion');
@@ -8,6 +14,7 @@ const SELECT_CON_SESION = `
     LEFT JOIN sesiones s ON s.espacio_id = e.id AND s.estado = 'ABIERTA'
     LEFT JOIN vehiculos v ON v.id = s.vehiculo_id`;
 
+/** Espacios con filtros, búsqueda y paginación. */
 async function listar({ q, zona, tipo, estado, ordenarPor, direccion }, { limite, offset }) {
   const f = crearFiltros();
   if (q) f.agregar('(e.codigo ILIKE ? OR v.placa ILIKE ?)', `%${q}%`);
@@ -25,16 +32,19 @@ async function listar({ q, zona, tipo, estado, ordenarPor, direccion }, { limite
   return { filas: filas.rows, total: total.rows[0].total };
 }
 
+/** Todos los espacios con la placa del vehículo que los ocupa. */
 async function mapa() {
   const r = await query(`${SELECT_CON_SESION} ORDER BY e.zona, e.orden_cercania`);
   return r.rows;
 }
 
+/** Espacio por id. */
 async function buscarPorId(id, db = { query }) {
   const r = await db.query('SELECT * FROM espacios WHERE id = $1', [id]);
   return r.rows[0];
 }
 
+/** Espacio por código (por ejemplo, A3). */
 async function buscarPorCodigo(codigo, db = { query }) {
   const r = await db.query('SELECT * FROM espacios WHERE codigo = $1', [codigo]);
   return r.rows[0];
@@ -63,6 +73,7 @@ async function bloquearMejorLibre(db, tiposPermitidos) {
   return r.rows[0];
 }
 
+/** Cambia el estado de un espacio y guarda el motivo de inhabilitación. */
 async function cambiarEstado(db, id, estado, motivo = null) {
   const r = await db.query(
     'UPDATE espacios SET estado = $2, motivo_inhabilitado = $3 WHERE id = $1 RETURNING *',
@@ -71,6 +82,7 @@ async function cambiarEstado(db, id, estado, motivo = null) {
   return r.rows[0];
 }
 
+/** Inserta un espacio. */
 async function crear({ codigo, zona, tipo, ordenCercania }) {
   const r = await query(
     'INSERT INTO espacios (codigo, zona, tipo, orden_cercania) VALUES ($1, $2, $3, $4) RETURNING *',
@@ -79,6 +91,7 @@ async function crear({ codigo, zona, tipo, ordenCercania }) {
   return r.rows[0];
 }
 
+/** Actualiza zona, tipo y orden de cercanía. */
 async function actualizar(id, { zona, tipo, ordenCercania }) {
   const r = await query(
     `UPDATE espacios SET zona = COALESCE($2, zona), tipo = COALESCE($3, tipo), orden_cercania = COALESCE($4, orden_cercania)
@@ -88,15 +101,18 @@ async function actualizar(id, { zona, tipo, ordenCercania }) {
   return r.rows[0];
 }
 
+/** Elimina un espacio. */
 async function eliminar(id) {
   await query('DELETE FROM espacios WHERE id = $1', [id]);
 }
 
+/** Número de sesiones registradas en un espacio (para impedir eliminarlo). */
 async function contarSesiones(id) {
   const r = await query('SELECT COUNT(*)::int AS n FROM sesiones WHERE espacio_id = $1', [id]);
   return r.rows[0].n;
 }
 
+/** Totales por estado y porcentaje de ocupación de los espacios operativos. */
 async function resumen(db = { query }) {
   const r = await db.query(`
     SELECT COUNT(*)::int AS total,

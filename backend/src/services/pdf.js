@@ -1,3 +1,10 @@
+/**
+ * Servicio de generación de documentos PDF
+ *
+ * Genera con PDFKit el comprobante de pago de cada sesión y el reporte de
+ * ingresos y ocupación del administrador.
+ */
+
 const PDFDocument = require('pdfkit');
 const env = require('../config/env');
 const { generarQrBuffer } = require('./qr');

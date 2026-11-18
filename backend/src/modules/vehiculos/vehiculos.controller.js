@@ -1,3 +1,9 @@
+/**
+ * Módulo Vehículos · Controlador
+ *
+ * Recibe la petición HTTP, delega en el servicio y devuelve la respuesta JSON.
+ */
+
 const servicio = require('./vehiculos.service');
 const contexto = require('../../utils/contexto');
 

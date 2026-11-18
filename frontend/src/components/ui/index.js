@@ -1,3 +1,7 @@
+/**
+ * Punto de exportación de los componentes de interfaz reutilizables.
+ */
+
 export { default as Boton } from './Boton';
 export { default as Campo } from './Campo';
 export { default as Insignia } from './Insignia';

@@ -1,3 +1,9 @@
+/**
+ * Página sin conexión
+ *
+ * Se muestra cuando el navegador pierde la conexión a internet.
+ */
+
 import { useNavigate } from 'react-router-dom';
 import { CloudOff, RefreshCw } from 'lucide-react';
 

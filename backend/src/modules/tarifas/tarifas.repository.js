@@ -1,17 +1,26 @@
+/**
+ * Módulo Tarifas · Repositorio
+ *
+ * Acceso a datos con consultas SQL parametrizadas sobre PostgreSQL.
+ */
+
 const { query } = require('../../config/db');
 
 const db0 = { query };
 
+/** Tarifas base de todos los tipos de vehículo. */
 async function listarTarifas(db = db0) {
   const r = await db.query("SELECT * FROM tarifas ORDER BY array_position(ARRAY['AUTO','MOTO','DISCAPACIDAD'], tipo_vehiculo)");
   return r.rows;
 }
 
+/** Tarifa base de un tipo de vehículo. */
 async function buscarTarifa(tipo, db = db0) {
   const r = await db.query('SELECT * FROM tarifas WHERE tipo_vehiculo = $1', [tipo]);
   return r.rows[0];
 }
 
+/** Actualiza la tarifa base de un tipo. */
 async function actualizarTarifa(tipo, { valorHora, fraccionMinutos, minutosGracia, topeDiario }) {
   const r = await query(
     `UPDATE tarifas SET valor_hora = $2, fraccion_minutos = $3, minutos_gracia = $4, tope_diario = $5, actualizado_en = NOW()
@@ -21,16 +30,19 @@ async function actualizarTarifa(tipo, { valorHora, fraccionMinutos, minutosGraci
   return r.rows[0];
 }
 
+/** Reglas de tarifa dinámica. */
 async function listarReglas(db = db0) {
   const r = await db.query('SELECT * FROM reglas_tarifa ORDER BY id');
   return r.rows;
 }
 
+/** Regla por código (ALTA_DEMANDA, HORA_PICO, NOCTURNA, CLIENTE_FRECUENTE). */
 async function buscarRegla(codigo) {
   const r = await query('SELECT * FROM reglas_tarifa WHERE codigo = $1', [codigo]);
   return r.rows[0];
 }
 
+/** Actualiza una regla de tarifa dinámica. */
 async function actualizarRegla(codigo, { activa, porcentaje, umbral, horaInicio, horaFin }) {
   const r = await query(
     `UPDATE reglas_tarifa

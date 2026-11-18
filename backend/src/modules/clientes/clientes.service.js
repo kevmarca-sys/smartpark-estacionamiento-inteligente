@@ -1,3 +1,10 @@
+/**
+ * Módulo Clientes · Servicio
+ *
+ * Reglas de negocio de clientes: registro con vehículo en una transacción, edición y
+ * eliminación.
+ */
+
 const repo = require('./clientes.repository');
 const vehiculosRepo = require('../vehiculos/vehiculos.repository');
 const auditoria = require('../auditoria/auditoria.service');
@@ -5,12 +12,14 @@ const AppError = require('../../utils/AppError');
 const { withTransaction } = require('../../config/db');
 const { obtenerPaginacion, respuestaPaginada } = require('../../utils/paginacion');
 
+/** Lista los clientes con búsqueda, orden y paginación. */
 async function listar(q) {
   const pag = obtenerPaginacion(q);
   const { filas, total } = await repo.listar(q, pag);
   return respuestaPaginada(filas, total, pag);
 }
 
+/** Devuelve un cliente con sus vehículos; 404 si no existe. */
 async function detalle(id) {
   const cliente = await repo.buscarPorId(id);
   if (!cliente) throw AppError.notFound('Cliente no encontrado');
@@ -47,6 +56,7 @@ async function crear(ctx, { vehiculo, ...datosCliente }) {
   });
 }
 
+/** Actualiza los datos de un cliente y lo registra en la auditoría. */
 async function actualizar(ctx, id, datos) {
   const actual = await repo.buscarPorId(id);
   if (!actual) throw AppError.notFound('Cliente no encontrado');
@@ -55,10 +65,12 @@ async function actualizar(ctx, id, datos) {
   return cliente;
 }
 
+/** Elimina un cliente; sus vehículos y su historial se conservan. */
 async function eliminar(ctx, id) {
   const actual = await repo.buscarPorId(id);
   if (!actual) throw AppError.notFound('Cliente no encontrado');
-  await repo.eliminar(id); // sus vehículos quedan como "sin registrar" (ON DELETE SET NULL), el historial se conserva
+  // Los vehículos quedan sin cliente (ON DELETE SET NULL) y el historial se conserva.
+  await repo.eliminar(id);
   await auditoria.registrar(ctx, { accion: 'ELIMINAR_CLIENTE', entidad: 'clientes', registroId: id, detalle: { nombres: actual.nombres } });
 }
 

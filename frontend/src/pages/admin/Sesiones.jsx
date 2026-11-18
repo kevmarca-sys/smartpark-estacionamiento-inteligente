@@ -1,3 +1,9 @@
+/**
+ * Página de sesiones (administrador)
+ *
+ * Historial de entradas y salidas con filtros, comprobante PDF y anulación.
+ */
+
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { FileText, XCircle } from 'lucide-react';

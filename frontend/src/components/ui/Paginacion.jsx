@@ -1,3 +1,7 @@
+/**
+ * Control de paginación para los listados del backend.
+ */
+
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Paginacion({ paginacion, alCambiar }) {

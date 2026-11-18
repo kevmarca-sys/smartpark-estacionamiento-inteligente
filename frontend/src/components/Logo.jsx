@@ -1,3 +1,7 @@
+/**
+ * Logotipo de SmartPark.
+ */
+
 export default function Logo({ claro = true, subtitulo = 'Estacionamiento inteligente' }) {
   return (
     <div className="flex items-center gap-2.5">

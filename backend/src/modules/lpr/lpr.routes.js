@@ -1,3 +1,12 @@
+/**
+ * Módulo Lectura de placas · Rutas
+ *
+ * Endpoints del módulo, con el rol requerido para cada uno:
+ *
+ *   GET   /api/lpr/estado  ADMIN / GUARDIA
+ *   POST  /api/lpr/leer    ADMIN / GUARDIA
+ */
+
 const { Router } = require('express');
 const multer = require('multer');
 const { autenticar, autorizar } = require('../../middlewares/auth');
@@ -27,7 +36,7 @@ router.get('/estado', (_req, res) => {
 router.post('/leer', subir.single('imagen'), async (req, res) => {
   if (!req.file) throw AppError.badRequest('Envíe la imagen de la placa en el campo "imagen"');
   const lectura = await leerPlaca(req.file.buffer, req.file.mimetype);
-  // En modo automático solo se auditan las lecturas confiables (evita llenar la auditoría)
+  // En modo automático solo se auditan las lecturas confiables para no saturar la auditoría.
   if (req.query.modo !== 'auto' || lectura.confiable) {
     await auditoria.registrar(contexto(req), {
       accion: 'LECTURA_PLACA', entidad: 'lpr', registroId: lectura.placa,

@@ -1,3 +1,7 @@
+/**
+ * Encabezado de página con título, descripción y acciones.
+ */
+
 export default function EncabezadoPagina({ titulo, descripcion, acciones }) {
   return (
     <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">

@@ -1,3 +1,9 @@
+/**
+ * Página de clientes y vehículos (administrador)
+ *
+ * Listados paginados de vehículos y clientes, historial por placa y registro de clientes.
+ */
+
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Phone, Star, UserPlus, X } from 'lucide-react';

@@ -1,3 +1,9 @@
+/**
+ * Módulo Autenticación · Controlador
+ *
+ * Recibe la petición HTTP, delega en el servicio y devuelve la respuesta JSON.
+ */
+
 const servicio = require('./auth.service');
 const auditoria = require('../auditoria/auditoria.service');
 const contexto = require('../../utils/contexto');

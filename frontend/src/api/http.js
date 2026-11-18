@@ -1,3 +1,10 @@
+/**
+ * Cliente HTTP (axios)
+ *
+ * Instancia única para consumir la API REST: agrega el token JWT a cada petición y
+ * normaliza los errores (sin conexión, validación, sesión expirada).
+ */
+
 import axios from 'axios';
 
 export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/$/, '');
@@ -11,14 +18,14 @@ export const almacenToken = {
 
 const http = axios.create({ baseURL: `${API_URL}/api`, timeout: 20000 });
 
-// Adjunta el token JWT en cada petición
+// Adjunta el token JWT a cada petición.
 http.interceptors.request.use((config) => {
   const token = almacenToken.obtener();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Normaliza los errores para mostrarlos de forma comprensible
+// Normaliza los errores para mostrarlos de forma comprensible al usuario.
 http.interceptors.response.use(
   (r) => r,
   (error) => {

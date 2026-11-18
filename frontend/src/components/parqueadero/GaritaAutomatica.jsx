@@ -1,13 +1,22 @@
+/**
+ * Garita automática con lectura de placas
+ *
+ * Mantiene la cámara encendida y compara cada imagen con la anterior. Cuando la
+ * escena cambia (llega un vehículo), envía la foto al backend para leer la placa
+ * y entrega el resultado al componente padre (entrada o salida).
+ */
+
 import { useEffect, useRef, useState } from 'react';
 import { CameraOff, Loader2, Radar, ScanLine } from 'lucide-react';
 import { lprApi } from '../../api/servicios';
 
-const INTERVALO_MS = 600;         // cada cuánto se revisa la escena
-const ESPERA_ENTRE_LECTURAS = 1500; // el plan gratuito permite 1 lectura por segundo
-const MAX_REINTENTOS = 3;         // si la placa salió borrosa se reintenta aunque la escena no cambie
-const UMBRAL_CAMBIO = 10;         // diferencia promedio (0-255) para considerar que llegó un vehículo
-const PAUSA_TRAS_DETECCION = 6000;
-const MISMA_PLACA_IGNORAR_MS = 30000;
+// Parámetros de la detección automática
+const INTERVALO_MS = 600;             // Cada cuánto se revisa la escena (ms)
+const ESPERA_ENTRE_LECTURAS = 1500;   // El plan gratuito admite una lectura por segundo
+const MAX_REINTENTOS = 3;             // Reintentos si la placa salió borrosa, aunque la escena no cambie
+const UMBRAL_CAMBIO = 10;             // Diferencia promedio (0-255) que indica la llegada de un vehículo
+const PAUSA_TRAS_DETECCION = 6000;    // Pausa tras una lectura exitosa (ms)
+const MISMA_PLACA_IGNORAR_MS = 30000; // Ignora la misma placa durante 30 s para no registrarla dos veces
 
 /** Huella pequeña en escala de grises para comparar fotogramas (detección de movimiento). */
 function huella(video, canvas) {
@@ -47,7 +56,7 @@ export default function GaritaAutomatica({ alDetectar, textoEspera = 'Esperando 
     let pausadoHasta = 0;
     let ultimaLlamada = 0;
     let referencia = null;
-    let reintentos = 0;            // lecturas fallidas de la escena actual
+    let reintentos = 0; // Lecturas fallidas de la escena actual
     const recientes = new Map();
     const lienzo = document.createElement('canvas');
     let cancelado = false;
@@ -68,7 +77,7 @@ export default function GaritaAutomatica({ alDetectar, textoEspera = 'Esperando 
       if (cancelado || ocupado || !video?.videoWidth || Date.now() < pausadoHasta) return;
       const actual = huella(video, lienzo);
       const cambio = diferencia(actual, referencia);
-      if (cambio >= UMBRAL_CAMBIO) reintentos = 0;          // llegó algo nuevo
+      if (cambio >= UMBRAL_CAMBIO) reintentos = 0; // Llegó un vehículo nuevo
       const reintentar = reintentos > 0 && reintentos < MAX_REINTENTOS;
       if ((cambio < UMBRAL_CAMBIO && !reintentar) || Date.now() - ultimaLlamada < ESPERA_ENTRE_LECTURAS) return;
 
@@ -94,7 +103,7 @@ export default function GaritaAutomatica({ alDetectar, textoEspera = 'Esperando 
           pausadoHasta = Date.now() + PAUSA_TRAS_DETECCION;
         }
       } catch (e) {
-        referencia = actual; // no volver a consultar la misma escena
+        referencia = actual; // No volver a consultar la misma escena
         if (e.status === 503) {
           setEstado('error');
           setMensaje(e.mensaje);

@@ -1,3 +1,9 @@
+/**
+ * Diálogo de confirmación
+ *
+ * Se muestra antes de las operaciones críticas: cobrar, anular o eliminar.
+ */
+
 import { AlertTriangle } from 'lucide-react';
 import Modal from './Modal';
 import Boton from './Boton';

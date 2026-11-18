@@ -1,3 +1,10 @@
+/**
+ * Servicio de reconocimiento de placas (LPR)
+ *
+ * Integración con la API externa de Plate Recognizer. El token se lee de la variable
+ * PLATE_RECOGNIZER_TOKEN y nunca se expone al frontend.
+ */
+
 const env = require('../config/env');
 const AppError = require('../utils/AppError');
 const { normalizarPlaca, esPlacaValida } = require('../utils/validadores');

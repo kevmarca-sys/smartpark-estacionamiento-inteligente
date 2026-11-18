@@ -1,3 +1,7 @@
+/**
+ * Ventana modal reutilizable con título, contenido y pie de acciones.
+ */
+
 import { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 

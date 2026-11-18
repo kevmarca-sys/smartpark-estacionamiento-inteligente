@@ -1,3 +1,10 @@
+/**
+ * Panel en vivo (administrador)
+ *
+ * Indicadores del día, mapa de espacios, ocupación por hora y actividad reciente.
+ * Se actualiza en tiempo real con cada entrada o salida.
+ */
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';

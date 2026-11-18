@@ -18,7 +18,7 @@ function Contador({ desde }) {
   return <span>{f(Math.floor(s / 3600))}:{f(Math.floor((s % 3600) / 60))}:{f(s % 60)}</span>;
 }
 
-/** Ticket digital del cliente: se abre desde el QR o el enlace del correo, sin iniciar sesión. */
+/** Ticket digital del cliente: se abre desde el código QR, sin iniciar sesión. */
 export default function MiTicket() {
   const { codigo } = useParams();
   const { datos, cargando, error, recargar } = useApi(() => publicoApi.ticket(codigo), [codigo]);

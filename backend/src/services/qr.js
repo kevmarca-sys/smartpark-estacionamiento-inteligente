@@ -1,3 +1,9 @@
+/**
+ * Servicio de códigos QR
+ *
+ * Construye la URL pública del ticket digital y genera su código QR en formato PNG.
+ */
+
 const QRCode = require('qrcode');
 const env = require('../config/env');
 

@@ -1,3 +1,10 @@
+/**
+ * Servicios de la API
+ *
+ * Una función por endpoint, agrupadas por recurso. Las páginas y componentes
+ * consumen la API solo a través de este archivo.
+ */
+
 import http, { API_URL, almacenToken } from './http';
 
 const datos = (p) => p.then((r) => r.data);

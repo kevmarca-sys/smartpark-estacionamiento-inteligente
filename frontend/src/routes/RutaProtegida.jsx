@@ -1,3 +1,10 @@
+/**
+ * Ruta protegida
+ *
+ * Exige una sesión iniciada y uno de los roles permitidos; si no se cumple,
+ * redirige al inicio de sesión o a la página 403.
+ */
+
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Cargando } from '../components/ui';

@@ -1,3 +1,9 @@
+/**
+ * Módulo Vehículos · Servicio
+ *
+ * Consulta de vehículos, historial por placa y detección de clientes frecuentes.
+ */
+
 const repo = require('./vehiculos.repository');
 const tarifasRepo = require('../tarifas/tarifas.repository');
 const auditoria = require('../auditoria/auditoria.service');
@@ -8,11 +14,13 @@ const { normalizarPlaca } = require('../../utils/validadores');
 
 const db0 = { query };
 
+/** Número de visitas desde el que un vehículo se considera frecuente. */
 async function umbralFrecuente() {
   const reglas = await tarifasRepo.listarReglas();
   return Number(reglas.find((r) => r.codigo === 'CLIENTE_FRECUENTE')?.umbral || 10);
 }
 
+/** Lista los vehículos con visitas, gasto y estado (dentro o fuera). */
 async function listar(q) {
   const pag = obtenerPaginacion(q);
   const umbral = await umbralFrecuente();
@@ -21,6 +29,7 @@ async function listar(q) {
   return respuestaPaginada(datos, total, pag);
 }
 
+/** Devuelve un vehículo por placa con su cliente, historial y estadísticas. */
 async function detalle(placaTexto) {
   const placa = normalizarPlaca(placaTexto);
   const vehiculo = await repo.buscarPorPlaca(placa);
@@ -31,12 +40,14 @@ async function detalle(placaTexto) {
   return { ...vehiculo, estadisticas, historial, sesionAbierta: abierta?.codigo_ticket || null, frecuente: estadisticas.visitas >= umbral };
 }
 
+/** Registra un vehículo nuevo. */
 async function crear(ctx, datos) {
   const vehiculo = await repo.crear(db0, datos);
   await auditoria.registrar(ctx, { accion: 'CREAR_VEHICULO', entidad: 'vehiculos', registroId: vehiculo.placa });
   return vehiculo;
 }
 
+/** Actualiza el tipo de un vehículo o el cliente al que pertenece. */
 async function actualizar(ctx, id, datos) {
   const actual = await repo.buscarPorId(id);
   if (!actual) throw AppError.notFound('Vehículo no encontrado');

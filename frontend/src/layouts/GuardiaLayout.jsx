@@ -1,3 +1,9 @@
+/**
+ * Layout del guardia
+ *
+ * Interfaz móvil para la garita, con navegación inferior entre Inicio, Entrada y Salida.
+ */
+
 import { NavLink, Outlet } from 'react-router-dom';
 import { Home, LayoutDashboard, LogIn, LogOut, QrCode } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';

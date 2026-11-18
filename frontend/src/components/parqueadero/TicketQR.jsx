@@ -1,3 +1,9 @@
+/**
+ * Ticket con código QR
+ *
+ * Muestra el QR del ticket para que el cliente lo escanee con su celular.
+ */
+
 import { dinero, hora } from '../../utils/formato';
 
 export default function TicketQR({ sesion, qr, tarifaHora }) {

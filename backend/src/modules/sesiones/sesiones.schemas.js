@@ -1,9 +1,15 @@
+/**
+ * Módulo Sesiones · Esquemas de validación (DTO)
+ *
+ * Esquemas Zod que validan y normalizan los datos de entrada antes del controlador.
+ */
+
 const { z } = require('zod');
 const { placa, tipoVehiculo } = require('../vehiculos/vehiculos.schemas');
 
 const entradaSchema = z.object({
   placa,
-  tipo: tipoVehiculo.optional(),            // obligatorio solo si el vehículo es nuevo
+  tipo: tipoVehiculo.optional(),            // Obligatorio solo si el vehículo es nuevo
   espacioCodigo: z.string().trim().toUpperCase().regex(/^[A-Z]\d{1,3}$/, 'Código de espacio no válido').optional(),
   metodoRegistro: z.enum(['LPR', 'MANUAL']).default('MANUAL'),
   confianza: z.coerce.number().min(0).max(100).optional(),

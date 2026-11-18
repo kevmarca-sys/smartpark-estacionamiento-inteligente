@@ -1,6 +1,13 @@
+/**
+ * Registro de entrada (guardia)
+ *
+ * Modo automático: la cámara lee la placa y registra la entrada sin intervención.
+ * Modo manual: el guardia escribe la placa. Al terminar se muestra el ticket con QR.
+ */
+
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Accessibility, Bike, Car, CheckCircle2, Keyboard, Mail, Plus, Printer, Radar, Star, UserPlus, Wand2, XCircle } from 'lucide-react';
+import { Accessibility, Bike, Car, CheckCircle2, Keyboard, Plus, Printer, Radar, Star, UserPlus, Wand2, XCircle } from 'lucide-react';
 import { espaciosApi, lprApi, sesionesApi, vehiculosApi } from '../../api/servicios';
 import useApi from '../../hooks/useApi';
 import useDebounce from '../../hooks/useDebounce';
@@ -30,7 +37,7 @@ export default function Entrada() {
   const [registrando, setRegistrando] = useState(false);
   const [resultado, setResultado] = useState(null);
   const [registrarCliente, setRegistrarCliente] = useState(false);
-  const [modo, setModo] = useState('manual');            // 'manual' | 'auto'
+  const [modo, setModo] = useState('manual'); // 'manual' | 'auto'
   const [historialAuto, setHistorialAuto] = useState([]);
 
   // Si la cámara de placas está configurada, la garita arranca en modo automático
@@ -65,7 +72,7 @@ export default function Entrada() {
       });
       toast.success(`${r.datos.sesion.placa} → espacio ${r.datos.sesion.espacio}`);
       setHistorialAuto([]);
-      setResultado(r.datos);   // al mostrar el ticket la cámara se apaga
+      setResultado(r.datos); // Al mostrar el ticket, la cámara se apaga
     } catch (e) {
       setHistorialAuto((h) => [{ id: Date.now(), placa: lectura.placa, mensaje: e.mensaje }, ...h].slice(0, 3));
     }
@@ -123,7 +130,6 @@ export default function Entrada() {
               Tarifa {dinero(resultado.tarifaVigente.valorHora)}/h{resultado.tarifaVigente.porcentaje ? ` (${resultado.tarifaVigente.porcentaje > 0 ? '+' : ''}${resultado.tarifaVigente.porcentaje}%)` : ''}
             </Insignia>
           </div>
-          {resultado.correo.enviado && <p className="mt-3 flex items-center justify-center gap-1 text-sm text-libre-oscuro"><Mail className="h-4 w-4" /> Ticket enviado a {resultado.correo.destino}</p>}
         </div>
         <div id="ticket-imprimible"><TicketQR sesion={s} qr={resultado.qr} tarifaHora={resultado.tarifaVigente.valorHora} /></div>
         <div className="grid grid-cols-2 gap-2">

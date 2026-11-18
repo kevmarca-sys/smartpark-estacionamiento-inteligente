@@ -1,3 +1,10 @@
+/**
+ * Formulario de registro de cliente y vehículo
+ *
+ * Valida los datos en el navegador (cédula con módulo 10 y placa ecuatoriana)
+ * y los envía a la API, que vuelve a validarlos. Lo usan el administrador y el guardia.
+ */
+
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { clientesApi } from '../../api/servicios';

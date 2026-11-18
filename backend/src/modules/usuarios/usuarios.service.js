@@ -1,15 +1,23 @@
+/**
+ * Módulo Usuarios · Servicio
+ *
+ * Gestión de las cuentas del personal y de sus roles.
+ */
+
 const bcrypt = require('bcryptjs');
 const repo = require('./usuarios.repository');
 const auditoria = require('../auditoria/auditoria.service');
 const AppError = require('../../utils/AppError');
 const { obtenerPaginacion, respuestaPaginada } = require('../../utils/paginacion');
 
+/** Lista los usuarios del personal con filtros y paginación. */
 async function listar(query) {
   const pag = obtenerPaginacion(query);
   const { filas, total } = await repo.listar(query, pag);
   return respuestaPaginada(filas, total, pag);
 }
 
+/** Crea una cuenta con la contraseña cifrada con bcrypt. */
 async function crear(ctx, datos) {
   const passwordHash = await bcrypt.hash(datos.password, 10);
   const usuario = await repo.crear({ ...datos, passwordHash });
@@ -17,6 +25,7 @@ async function crear(ctx, datos) {
   return usuario;
 }
 
+/** Actualiza nombre, correo, rol, estado o contraseña de un usuario. */
 async function actualizar(ctx, id, datos) {
   const actual = await repo.buscarPorId(id);
   if (!actual) throw AppError.notFound('Usuario no encontrado');
@@ -25,7 +34,7 @@ async function actualizar(ctx, id, datos) {
   if (esElMismo && (datos.activo === false || (datos.rol && datos.rol !== actual.rol))) {
     throw AppError.businessRule('No puede desactivarse ni cambiarse el rol a sí mismo');
   }
-  // Regla: siempre debe existir al menos un administrador activo
+  // Regla de negocio: siempre debe existir al menos un administrador activo.
   const dejaDeSerAdmin = actual.rol === 'ADMIN' && ((datos.rol && datos.rol !== 'ADMIN') || datos.activo === false);
   if (dejaDeSerAdmin && (await repo.contarAdminsActivos(id)) === 0) {
     throw AppError.businessRule('Debe existir al menos un administrador activo en el sistema');

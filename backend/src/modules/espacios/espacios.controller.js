@@ -1,3 +1,9 @@
+/**
+ * Módulo Espacios · Controlador
+ *
+ * Recibe la petición HTTP, delega en el servicio y devuelve la respuesta JSON.
+ */
+
 const servicio = require('./espacios.service');
 const contexto = require('../../utils/contexto');
 

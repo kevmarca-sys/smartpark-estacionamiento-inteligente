@@ -1,3 +1,9 @@
+/**
+ * Módulo Sesiones · Repositorio
+ *
+ * Acceso a datos con consultas SQL parametrizadas sobre PostgreSQL.
+ */
+
 const { query } = require('../../config/db');
 const { crearFiltros } = require('../../utils/filtros');
 const { construirOrden } = require('../../utils/paginacion');
@@ -19,6 +25,7 @@ const SELECT_DETALLE = `
     LEFT JOIN usuarios us ON us.id = s.usuario_salida_id
     LEFT JOIN pagos p ON p.sesion_id = s.id`;
 
+/** Sesiones con placa, espacio y guardia, filtradas y paginadas. */
 async function listar(filtros, { limite, offset }) {
   const { q, estado, desde, hasta, espacio, usuarioId, metodo, tipoVehiculo, ordenarPor, direccion } = filtros;
   const f = crearFiltros();
@@ -47,11 +54,13 @@ async function listar(filtros, { limite, offset }) {
   return { filas: filas.rows, total: total.rows[0].total, suma: total.rows[0].suma };
 }
 
+/** Sesión por código de ticket, con los datos del vehículo, cliente y espacio. */
 async function buscarPorCodigo(codigo, db = db0) {
   const r = await db.query(`${SELECT_DETALLE} WHERE s.codigo_ticket = $1`, [codigo]);
   return r.rows[0];
 }
 
+/** Sesión por id, con los mismos datos. */
 async function buscarPorId(id, db = db0) {
   const r = await db.query(`${SELECT_DETALLE} WHERE s.id = $1`, [id]);
   return r.rows[0];
@@ -63,6 +72,7 @@ async function bloquearPorCodigo(db, codigo) {
   return r.rows[0];
 }
 
+/** Inserta una sesión abierta. */
 async function crear(db, d) {
   const r = await db.query(
     `INSERT INTO sesiones (codigo_ticket, vehiculo_id, espacio_id, usuario_entrada_id, ocupacion_entrada, metodo_registro, confianza_lectura)
@@ -72,6 +82,7 @@ async function crear(db, d) {
   return r.rows[0];
 }
 
+/** Cierra la sesión con la fecha de salida, el total y el desglose del cálculo. */
 async function cerrar(db, id, { usuarioId, fechaSalida, total, detalle }) {
   const r = await db.query(
     `UPDATE sesiones SET estado = 'CERRADA', usuario_salida_id = $2, fecha_salida = $3, total = $4, detalle_calculo = $5
@@ -81,6 +92,7 @@ async function cerrar(db, id, { usuarioId, fechaSalida, total, detalle }) {
   return r.rows[0];
 }
 
+/** Marca la sesión como anulada con su motivo. */
 async function anular(db, id, { usuarioId, motivo }) {
   const r = await db.query(
     `UPDATE sesiones SET estado = 'ANULADA', usuario_salida_id = $2, fecha_salida = NOW(), total = 0, motivo_anulacion = $3
@@ -90,6 +102,7 @@ async function anular(db, id, { usuarioId, motivo }) {
   return r.rows[0];
 }
 
+/** Registra el pago; UNIQUE (sesion_id) impide un segundo cobro. */
 async function insertarPago(db, { sesionId, monto, metodo, referencia, usuarioId, fecha }) {
   const r = await db.query(
     'INSERT INTO pagos (sesion_id, monto, metodo, referencia, usuario_id, fecha) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',

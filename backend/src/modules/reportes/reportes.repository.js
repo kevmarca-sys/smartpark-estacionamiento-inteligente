@@ -1,8 +1,15 @@
+/**
+ * Módulo Reportes · Repositorio
+ *
+ * Acceso a datos con consultas SQL parametrizadas sobre PostgreSQL.
+ */
+
 const { query } = require('../../config/db');
 const { crearFiltros } = require('../../utils/filtros');
 
 const TZ = "'America/Guayaquil'";
 
+/** Ingresos y número de cobros de un día (hoy o días anteriores). */
 async function ingresosDelDia(diasAtras = 0) {
   const r = await query(
     `SELECT COALESCE(SUM(monto), 0)::numeric(10,2) AS ingresos, COUNT(*)::int AS transacciones
@@ -13,6 +20,7 @@ async function ingresosDelDia(diasAtras = 0) {
   return r.rows[0];
 }
 
+/** Tiempo promedio de permanencia de las sesiones cerradas hoy. */
 async function estadiaPromedioHoy() {
   const r = await query(
     `SELECT COALESCE(ROUND(AVG(EXTRACT(EPOCH FROM (fecha_salida - fecha_entrada)) / 60)), 0)::int AS minutos
@@ -43,6 +51,7 @@ async function ocupacionPorHoraHoy(espaciosOperativos) {
   }));
 }
 
+/** Construye los filtros de fecha, tipo y zona del reporte. */
 function filtrosRango({ desde, hasta, tipoVehiculo, zona }) {
   const f = crearFiltros();
   f.agregarSinValor("s.estado = 'CERRADA'");
@@ -55,6 +64,7 @@ function filtrosRango({ desde, hasta, tipoVehiculo, zona }) {
 
 const FROM = 'FROM sesiones s JOIN vehiculos v ON v.id = s.vehiculo_id JOIN espacios e ON e.id = s.espacio_id LEFT JOIN clientes c ON c.id = v.cliente_id LEFT JOIN pagos p ON p.sesion_id = s.id';
 
+/** Totales, ingresos por día, por tipo y por zona dentro del rango. */
 async function resumen(filtros) {
   const f = filtrosRango(filtros);
   const [totales, porDia, porTipo, porMetodo, porHora, calor, top] = await Promise.all([

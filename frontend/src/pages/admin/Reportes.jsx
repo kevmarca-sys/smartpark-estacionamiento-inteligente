@@ -1,3 +1,9 @@
+/**
+ * Página de reportes (administrador)
+ *
+ * Ingresos y ocupación con filtros por fecha, tipo de vehículo y zona; exportación a PDF.
+ */
+
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import {

@@ -1,3 +1,7 @@
+/**
+ * Insignia de color para estados y etiquetas.
+ */
+
 const COLORES = {
   verde: 'bg-libre-claro text-green-800',
   rojo: 'bg-ocupado-claro text-red-800',

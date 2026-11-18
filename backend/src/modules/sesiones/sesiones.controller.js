@@ -1,3 +1,9 @@
+/**
+ * Módulo Sesiones · Controlador
+ *
+ * Recibe la petición HTTP, delega en el servicio y devuelve la respuesta JSON.
+ */
+
 const servicio = require('./sesiones.service');
 const contexto = require('../../utils/contexto');
 const { comprobantePago } = require('../../services/pdf');

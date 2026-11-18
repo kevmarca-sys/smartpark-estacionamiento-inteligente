@@ -1,3 +1,9 @@
+/**
+ * Indicador de conexión en tiempo real
+ *
+ * Muestra "EN VIVO" mientras la conexión con Socket.io está activa.
+ */
+
 import { useEffect, useState } from 'react';
 import { obtenerSocket } from '../hooks/useTiempoReal';
 

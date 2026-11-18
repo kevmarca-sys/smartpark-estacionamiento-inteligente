@@ -1,3 +1,9 @@
+/**
+ * Módulo Usuarios · Controlador
+ *
+ * Recibe la petición HTTP, delega en el servicio y devuelve la respuesta JSON.
+ */
+
 const servicio = require('./usuarios.service');
 const contexto = require('../../utils/contexto');
 

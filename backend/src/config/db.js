@@ -1,3 +1,10 @@
+/**
+ * Conexión a PostgreSQL
+ *
+ * Pool de conexiones compartido por toda la API y utilidad para ejecutar
+ * operaciones dentro de una transacción (BEGIN / COMMIT / ROLLBACK).
+ */
+
 const { Pool } = require('pg');
 const env = require('./env');
 

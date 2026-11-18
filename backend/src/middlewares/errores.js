@@ -1,3 +1,10 @@
+/**
+ * Middlewares de manejo de errores
+ *
+ * Responde 404 a las rutas inexistentes y traduce cualquier error a una
+ * respuesta JSON uniforme: { ok: false, error: { codigo, mensaje, detalles } }.
+ */
+
 const AppError = require('../utils/AppError');
 const env = require('../config/env');
 
@@ -17,7 +24,7 @@ function manejadorErrores(err, req, res, _next) {
 
   if (!(error instanceof AppError)) {
     if (error.code === '23505') {
-      // violación de restricción UNIQUE
+      // Violación de una restricción UNIQUE
       const mensajes = {
         vehiculos_placa_key: 'Esta placa ya está registrada',
         clientes_cedula_key: 'Ya existe un cliente con esta cédula',

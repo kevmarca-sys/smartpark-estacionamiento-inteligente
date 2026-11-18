@@ -1,3 +1,9 @@
+/**
+ * Módulo Autenticación · Esquemas de validación (DTO)
+ *
+ * Esquemas Zod que validan y normalizan los datos de entrada antes del controlador.
+ */
+
 const { z } = require('zod');
 
 const loginSchema = z.object({

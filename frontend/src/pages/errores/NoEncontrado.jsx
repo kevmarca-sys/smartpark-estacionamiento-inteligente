@@ -1,3 +1,7 @@
+/**
+ * Página 404: la ruta solicitada no existe.
+ */
+
 import { Link } from 'react-router-dom';
 import { MapPinOff } from 'lucide-react';
 

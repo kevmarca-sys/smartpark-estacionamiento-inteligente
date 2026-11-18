@@ -1,3 +1,14 @@
+/**
+ * Módulo Vehículos · Rutas
+ *
+ * Endpoints del módulo, con el rol requerido para cada uno:
+ *
+ *   GET    /api/vehiculos         Autenticado
+ *   GET    /api/vehiculos/:placa  Autenticado
+ *   POST   /api/vehiculos         Autenticado
+ *   PATCH  /api/vehiculos/:id     ADMIN
+ */
+
 const { Router } = require('express');
 const { autenticar, autorizar } = require('../../middlewares/auth');
 const validar = require('../../middlewares/validar');

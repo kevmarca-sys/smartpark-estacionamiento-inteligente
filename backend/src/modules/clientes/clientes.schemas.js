@@ -1,3 +1,9 @@
+/**
+ * Módulo Clientes · Esquemas de validación (DTO)
+ *
+ * Esquemas Zod que validan y normalizan los datos de entrada antes del controlador.
+ */
+
 const { z } = require('zod');
 const { esCedulaValida } = require('../../utils/validadores');
 const { placa, tipoVehiculo } = require('../vehiculos/vehiculos.schemas');

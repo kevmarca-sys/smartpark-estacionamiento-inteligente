@@ -1,3 +1,9 @@
+/**
+ * Página de espacios (administrador)
+ *
+ * Alta, edición, inhabilitación con motivo y eliminación de espacios.
+ */
+
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Ban, CheckCircle2, LayoutGrid, List, Pencil, Plus, Trash2 } from 'lucide-react';

@@ -1,3 +1,10 @@
+/**
+ * Módulo Espacios · Servicio
+ *
+ * Reglas de negocio de espacios: alta, edición, habilitación, inhabilitación y
+ * eliminación.
+ */
+
 const repo = require('./espacios.repository');
 const auditoria = require('../auditoria/auditoria.service');
 const AppError = require('../../utils/AppError');
@@ -5,16 +12,19 @@ const { withTransaction } = require('../../config/db');
 const { emitirCambio } = require('../../services/socket');
 const { obtenerPaginacion, respuestaPaginada } = require('../../utils/paginacion');
 
+/** Lista los espacios con filtros por zona, tipo y estado. */
 async function listar(query) {
   const pag = obtenerPaginacion(query);
   const { filas, total } = await repo.listar(query, pag);
   return respuestaPaginada(filas, total, pag);
 }
 
+/** Devuelve todos los espacios con su estado y un resumen de ocupación. */
 async function mapa() {
   return { espacios: await repo.mapa(), resumen: await repo.resumen() };
 }
 
+/** Crea un espacio nuevo; la zona se toma de la letra inicial del código. */
 async function crear(ctx, { codigo, tipo, ordenCercania }) {
   const espacio = await repo.crear({ codigo, zona: codigo[0], tipo, ordenCercania: ordenCercania ?? 100 });
   await auditoria.registrar(ctx, { accion: 'CREAR_ESPACIO', entidad: 'espacios', registroId: espacio.codigo, detalle: { tipo } });
@@ -22,6 +32,7 @@ async function crear(ctx, { codigo, tipo, ordenCercania }) {
   return espacio;
 }
 
+/** Modifica un espacio. No permite cambiar el tipo de un espacio ocupado. */
 async function actualizar(ctx, id, datos) {
   const actual = await repo.buscarPorId(id);
   if (!actual) throw AppError.notFound('Espacio no encontrado');
@@ -63,6 +74,7 @@ async function cambiarEstado(ctx, id, { estado, motivo }) {
   return espacio;
 }
 
+/** Elimina un espacio solo si no tiene historial de sesiones. */
 async function eliminar(ctx, id) {
   const actual = await repo.buscarPorId(id);
   if (!actual) throw AppError.notFound('Espacio no encontrado');

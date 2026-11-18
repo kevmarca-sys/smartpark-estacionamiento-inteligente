@@ -1,3 +1,9 @@
+/**
+ * Módulo Tarifas · Esquemas de validación (DTO)
+ *
+ * Esquemas Zod que validan y normalizan los datos de entrada antes del controlador.
+ */
+
 const { z } = require('zod');
 
 const hora = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d(:00)?$/, 'Hora no válida (formato HH:MM)');

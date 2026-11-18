@@ -1,9 +1,17 @@
+/**
+ * Hook useTiempoReal
+ *
+ * Mantiene una única conexión Socket.io y ejecuta una función cada vez que el
+ * backend notifica un cambio en el parqueadero.
+ */
+
 import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { API_URL, almacenToken } from '../api/http';
 
 let socketCompartido = null;
 
+/** Devuelve la conexión Socket.io compartida (la crea la primera vez). */
 export function obtenerSocket() {
   if (!socketCompartido) {
     socketCompartido = io(API_URL, { auth: { token: almacenToken.obtener() }, transports: ['websocket', 'polling'] });
@@ -11,6 +19,7 @@ export function obtenerSocket() {
   return socketCompartido;
 }
 
+/** Cierra y recrea la conexión, por ejemplo al iniciar o cerrar sesión. */
 export function reiniciarSocket() {
   if (socketCompartido) socketCompartido.disconnect();
   socketCompartido = null;

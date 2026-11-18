@@ -1,3 +1,10 @@
+/**
+ * Escáner de códigos QR
+ *
+ * Lee el QR del ticket con la cámara del dispositivo (html5-qrcode). Usa el
+ * detector nativo del navegador cuando está disponible para leer más rápido.
+ */
+
 import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import { CameraOff } from 'lucide-react';
@@ -34,7 +41,7 @@ export default function EscanerQR({ alLeer, activo = true }) {
         },
       },
       (texto) => {
-        if (texto === ultimo) return;     // evita lecturas repetidas del mismo código
+        if (texto === ultimo) return; // Evita lecturas repetidas del mismo código
         ultimo = texto;
         setTimeout(() => { ultimo = ''; }, 3000);
         alLeerRef.current?.(texto);

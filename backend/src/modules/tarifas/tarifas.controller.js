@@ -1,3 +1,9 @@
+/**
+ * Módulo Tarifas · Controlador
+ *
+ * Recibe la petición HTTP, delega en el servicio y devuelve la respuesta JSON.
+ */
+
 const servicio = require('./tarifas.service');
 const contexto = require('../../utils/contexto');
 

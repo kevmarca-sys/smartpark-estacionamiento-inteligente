@@ -1,3 +1,9 @@
+/**
+ * Página de inicio de sesión
+ *
+ * Autentica al usuario y lo redirige a la página de inicio de su rol.
+ */
+
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, User } from 'lucide-react';
