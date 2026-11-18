@@ -91,7 +91,7 @@ export default function Clientes() {
 
   return (
     <div>
-      <EncabezadoPagina titulo="Clientes y vehículos" descripcion="Los vehículos se reconocen por su placa: el cliente se registra una sola vez"
+      <EncabezadoPagina titulo="Clientes y vehículos"
         acciones={<Boton icono={UserPlus} onClick={() => setFormulario(true)}>Registrar cliente</Boton>} />
       <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
         <div className="tarjeta">
