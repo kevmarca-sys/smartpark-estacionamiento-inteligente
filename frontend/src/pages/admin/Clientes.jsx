@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Mail, Phone, Star, UserPlus, X } from 'lucide-react';
+import { Phone, Star, UserPlus, X } from 'lucide-react';
 import { clientesApi, vehiculosApi } from '../../api/servicios';
 import useListado from '../../hooks/useListado';
 import useApi from '../../hooks/useApi';
@@ -34,7 +34,6 @@ function DetalleVehiculo({ placa, alCerrar }) {
             <div className="rounded-lg bg-slate-50 p-3 text-sm">
               <p className="font-semibold">{v.cliente}</p>
               {v.cliente_cedula && <p className="text-slate-500">CI: {v.cliente_cedula}</p>}
-              {v.cliente_correo && <p className="flex items-center gap-1 text-slate-500"><Mail className="h-3 w-3" />{v.cliente_correo}</p>}
               {v.cliente_telefono && <p className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3" />{v.cliente_telefono}</p>}
             </div>
           ) : <p className="text-sm text-slate-500">Cliente ocasional (sin datos registrados)</p>}
@@ -83,7 +82,6 @@ export default function Clientes() {
   const colClientes = [
     { clave: 'nombres', titulo: 'Nombre', ordenable: true, render: (c) => <span className="font-semibold">{c.nombres}</span> },
     { clave: 'cedula', titulo: 'Cédula', render: (c) => c.cedula || '—' },
-    { clave: 'correo', titulo: 'Correo', render: (c) => c.correo || '—' },
     { clave: 'telefono', titulo: 'Teléfono', render: (c) => c.telefono || '—' },
     { clave: 'placas', titulo: 'Vehículos', render: (c) => <div className="flex gap-1">{c.placas.map((p) => <button type="button" key={p} onClick={() => setSeleccion(p)} className="placa rounded bg-slate-100 px-1.5 text-xs hover:bg-marino-claro">{p}</button>)}</div> },
     { clave: 'visitas', titulo: 'Visitas', ordenable: true },
@@ -106,7 +104,7 @@ export default function Clientes() {
             ))}
           </div>
           <div className="grid gap-3 p-4 md:grid-cols-4">
-            <Campo className="md:col-span-2" placeholder={pestana === 'vehiculos' ? 'Buscar placa, cliente o cédula...' : 'Buscar nombre, cédula, correo o placa...'}
+            <Campo className="md:col-span-2" placeholder={pestana === 'vehiculos' ? 'Buscar placa, cliente o cédula...' : 'Buscar nombre, cédula o placa...'}
               value={activa.filtros.q} onChange={(e) => activa.cambiarFiltro('q', e.target.value)} aria-label="Buscar" />
             {pestana === 'vehiculos' && (
               <>
