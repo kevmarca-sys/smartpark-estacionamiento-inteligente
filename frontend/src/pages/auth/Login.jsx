@@ -32,8 +32,10 @@ export default function Login() {
     setEnviando(true);
     try {
       const u = await iniciarSesion(form.usuario.trim(), form.password);
+      // Cada rol entra a su propia pantalla de inicio
+      const inicio = u.rol === 'ADMIN' ? '/admin' : '/guardia';
       const destino = ubicacion.state?.desde;
-      navegar(destino && !destino.startsWith('/login') ? destino : (u.rol === 'ADMIN' ? '/admin' : '/guardia'), { replace: true });
+      navegar(destino && destino.startsWith(inicio) ? destino : inicio, { replace: true });
     } catch (e) {
       setErrorGeneral(e.mensaje);
     } finally {
@@ -89,6 +91,7 @@ export default function Login() {
 
             <Boton type="submit" cargando={enviando} className="w-full" tamano="lg">{enviando ? 'Ingresando...' : 'Ingresar'}</Boton>
           </form>
+
         </div>
       </section>
     </div>
