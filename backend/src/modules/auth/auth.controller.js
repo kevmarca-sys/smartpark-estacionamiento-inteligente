@@ -7,9 +7,10 @@
 const servicio = require('./auth.service');
 const auditoria = require('../auditoria/auditoria.service');
 const contexto = require('../../utils/contexto');
+const { describirDispositivo } = require('../../utils/dispositivo');
 
 async function login(req, res) {
-  const resultado = await servicio.login(req.body, req.ip);
+  const resultado = await servicio.login(req.body, req.ip, req.get('user-agent'));
   res.json({ ok: true, ...resultado });
 }
 
@@ -18,7 +19,10 @@ async function perfil(req, res) {
 }
 
 async function logout(req, res) {
-  await auditoria.registrar(contexto(req), { accion: 'CIERRE_SESION', entidad: 'usuarios', registroId: req.usuario.id });
+  await auditoria.registrar(contexto(req), {
+    accion: 'CIERRE_SESION', entidad: 'usuarios', registroId: req.usuario.id,
+    detalle: { rol: req.usuario.rol, dispositivo: describirDispositivo(req.get('user-agent')) },
+  });
   res.json({ ok: true, mensaje: 'Sesión cerrada' });
 }
 

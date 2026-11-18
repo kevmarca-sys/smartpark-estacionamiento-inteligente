@@ -10,6 +10,7 @@ const env = require('../../config/env');
 const AppError = require('../../utils/AppError');
 const usuariosRepo = require('../usuarios/usuarios.repository');
 const auditoria = require('../auditoria/auditoria.service');
+const { describirDispositivo } = require('../../utils/dispositivo');
 
 /** Firma el token JWT con el id, el nombre y el rol del usuario. */
 function generarToken(usuario) {
@@ -21,13 +22,14 @@ function generarToken(usuario) {
 }
 
 /** Valida las credenciales, registra el acceso en la auditoría y devuelve el token. */
-async function login({ usuario, password }, ip) {
+async function login({ usuario, password }, ip, userAgent) {
+  const dispositivo = describirDispositivo(userAgent);
   const encontrado = await usuariosRepo.buscarPorUsuarioOCorreo(usuario);
   // Mismo mensaje para usuario inexistente o contraseña incorrecta para no revelar cuál de los dos falló.
   const valido = encontrado && (await bcrypt.compare(password, encontrado.password_hash));
 
   if (!valido) {
-    await auditoria.registrar({ ip }, { accion: 'LOGIN_FALLIDO', entidad: 'usuarios', detalle: { usuario } });
+    await auditoria.registrar({ ip }, { accion: 'LOGIN_FALLIDO', entidad: 'usuarios', detalle: { usuario, dispositivo } });
     throw AppError.unauthorized('Usuario o contraseña incorrectos');
   }
   if (!encontrado.activo) {
@@ -36,7 +38,10 @@ async function login({ usuario, password }, ip) {
 
   await usuariosRepo.actualizarUltimoAcceso(encontrado.id);
   const datos = { id: encontrado.id, nombre: encontrado.nombre, usuario: encontrado.usuario, correo: encontrado.correo, rol: encontrado.rol };
-  await auditoria.registrar({ usuario: datos, ip }, { accion: 'INICIO_SESION', entidad: 'usuarios', registroId: encontrado.id });
+  await auditoria.registrar({ usuario: datos, ip }, {
+    accion: 'INICIO_SESION', entidad: 'usuarios', registroId: encontrado.id,
+    detalle: { rol: encontrado.rol, dispositivo },
+  });
 
   return { token: generarToken(encontrado), usuario: datos };
 }

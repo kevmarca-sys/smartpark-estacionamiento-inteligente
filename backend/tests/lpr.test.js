@@ -22,3 +22,11 @@ test('mantiene las placas de auto', () => {
   assert.strictEqual(elegirLectura([{ plate: 'act5204', score: 0.97 }]).placa, 'ACT-5204');
   assert.strictEqual(elegirLectura([{ plate: 'acts204', score: 0.9 }]).placa, 'ACT-5204');
 });
+
+const { describirDispositivo } = require('../src/utils/dispositivo');
+test('describe el navegador y el sistema del dispositivo', () => {
+  const movil = 'Mozilla/5.0 (Linux; Android 14; SM-A546E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Mobile Safari/537.36';
+  const pc = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36 Edg/131.0';
+  assert.strictEqual(describirDispositivo(movil), 'Chrome · Android');
+  assert.strictEqual(describirDispositivo(pc), 'Edge · Windows');
+});
