@@ -26,6 +26,7 @@ const Usuarios = lazy(() => import('./pages/admin/Usuarios'));
 const InicioGuardia = lazy(() => import('./pages/guardia/Inicio'));
 const Entrada = lazy(() => import('./pages/guardia/Entrada'));
 const Salida = lazy(() => import('./pages/guardia/Salida'));
+const EspaciosGuardia = lazy(() => import('./pages/guardia/Espacios'));
 const MiTicket = lazy(() => import('./pages/publico/MiTicket'));
 const AccesoDenegado = lazy(() => import('./pages/errores/AccesoDenegado'));
 const SinConexion = lazy(() => import('./pages/errores/SinConexion'));
@@ -71,6 +72,7 @@ export default function App() {
             <Route index element={<InicioGuardia />} />
             <Route path="entrada" element={<Entrada />} />
             <Route path="salida" element={<Salida />} />
+            <Route path="espacios" element={<EspaciosGuardia />} />
           </Route>
         </Route>
 
