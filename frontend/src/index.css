@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-lienzo text-tinta font-sans antialiased; }
+  :focus-visible { @apply outline-none ring-2 ring-electrico ring-offset-2; }
+}
+
+@layer components {
+  .tarjeta { @apply bg-white rounded-xl2 border border-slate-200 shadow-suave; }
+  .etiqueta { @apply block text-xs font-semibold text-slate-600 mb-1; }
+  .entrada {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm
+           placeholder:text-slate-400 focus:border-electrico focus:ring-2 focus:ring-electrico/30 focus:outline-none
+           disabled:bg-slate-100 disabled:text-slate-500;
+  }
+  .entrada-error { @apply border-ocupado focus:border-ocupado focus:ring-ocupado/30; }
+  .tabla th { @apply text-left text-xs font-semibold uppercase tracking-wide text-slate-500 px-4 py-3 bg-slate-50 border-b border-slate-200 whitespace-nowrap; }
+  .tabla td { @apply px-4 py-3 text-sm border-b border-slate-100 whitespace-nowrap; }
+  .tabla tbody tr:hover { @apply bg-slate-50/70; }
+  .placa { @apply font-mono font-bold tracking-wider; }
+}
+
+/* Al imprimir el ticket solo se imprime el ticket */
+@media print {
+  body * { visibility: hidden; }
+  #ticket-imprimible, #ticket-imprimible * { visibility: visible; }
+  #ticket-imprimible { position: absolute; left: 0; top: 0; width: 80mm; }
+}
