@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Accessibility, Bike, Car, CheckCircle2, Mail, Plus, Printer, Star, UserPlus, Wand2 } from 'lucide-react';
+import { Accessibility, Bike, Car, CheckCircle2, Keyboard, Mail, Plus, Printer, Radar, Star, UserPlus, Wand2, XCircle } from 'lucide-react';
 import { espaciosApi, lprApi, sesionesApi, vehiculosApi } from '../../api/servicios';
 import useApi from '../../hooks/useApi';
 import useDebounce from '../../hooks/useDebounce';
 import CamaraPlaca from '../../components/parqueadero/CamaraPlaca';
+import GaritaAutomatica from '../../components/parqueadero/GaritaAutomatica';
 import TicketQR from '../../components/parqueadero/TicketQR';
 import FormularioCliente from '../../components/parqueadero/FormularioCliente';
 import { Alerta, Boton, Campo, Insignia } from '../../components/ui';
 import { esPlacaValida, normalizarPlaca, textoTipo } from '../../utils/constantes';
-import { dinero } from '../../utils/formato';
+import { dinero, hora } from '../../utils/formato';
 
 const TIPOS = [
   { valor: 'AUTO', texto: 'Auto', icono: Car },
@@ -29,6 +30,11 @@ export default function Entrada() {
   const [registrando, setRegistrando] = useState(false);
   const [resultado, setResultado] = useState(null);
   const [registrarCliente, setRegistrarCliente] = useState(false);
+  const [modo, setModo] = useState('manual');            // 'manual' | 'auto'
+  const [historialAuto, setHistorialAuto] = useState([]);
+
+  // Si la cámara de placas está configurada, la garita arranca en modo automático
+  useEffect(() => { if (lpr.datos?.datos.configurado) setModo('auto'); }, [lpr.datos]);
 
   const placaNormal = normalizarPlaca(placa);
   const placaValida = esPlacaValida(placaNormal);
@@ -49,6 +55,20 @@ export default function Entrada() {
     if (!conocido && l.tipoSugerido) setTipo(l.tipoSugerido);
     setError(null);
     if (!l.confiable) toast('Lectura poco confiable: verifique la placa', { icon: '⚠️' });
+  }
+
+  /** Modo automático: la cámara detectó una placa → se registra la entrada sin intervención. */
+  async function entradaAutomatica(lectura) {
+    try {
+      const r = await sesionesApi.entrada({
+        placa: lectura.placa, tipo: lectura.tipoSugerido, metodoRegistro: 'LPR', confianza: lectura.confianza,
+      });
+      toast.success(`${r.datos.sesion.placa} → espacio ${r.datos.sesion.espacio}`);
+      setHistorialAuto([]);
+      setResultado(r.datos);   // al mostrar el ticket la cámara se apaga
+    } catch (e) {
+      setHistorialAuto((h) => [{ id: Date.now(), placa: lectura.placa, mensaje: e.mensaje }, ...h].slice(0, 3));
+    }
   }
 
   async function registrar() {
@@ -72,32 +92,43 @@ export default function Entrada() {
   }
 
   function nuevaEntrada() {
-    setResultado(null); setPlaca(''); setLectura(null); setError(null); setEspacioManual(''); setModoEspacio('auto'); setTipo('AUTO');
+    setResultado(null); setPlaca(''); setLectura(null); setError(null); setEspacioManual(''); setModoEspacio('auto'); setTipo('AUTO'); setHistorialAuto([]);
   }
 
   if (resultado) {
     const s = resultado.sesion;
+    const porCamara = s.metodo_registro === 'LPR';
     return (
       <div className="space-y-4">
         <div className="tarjeta p-5 text-center">
           <CheckCircle2 className="mx-auto h-12 w-12 text-libre" />
-          <p className="mt-2 text-xl font-bold">Entrada registrada</p>
-          <p className="text-sm text-slate-500">Asignación {resultado.asignacion === 'AUTOMATICA' ? 'automática' : 'manual'}{resultado.vehiculoNuevo ? ' · vehículo nuevo' : ` · visita n.º ${resultado.visitas + 1}`}</p>
+          <p className="mt-2 text-xl font-bold">{porCamara ? 'Entrada registrada automáticamente' : 'Entrada registrada'}</p>
+          <p className="text-sm text-slate-500">
+            {porCamara ? `Placa leída por cámara (${Number(s.confianza_lectura)}%) · ` : ''}Asignación {resultado.asignacion === 'AUTOMATICA' ? 'automática' : 'manual'}
+          </p>
           <div className="mx-auto mt-4 w-fit rounded-2xl bg-marino px-10 py-4 text-white">
             <p className="text-xs uppercase tracking-widest text-blue-200">Espacio asignado</p>
             <p className="text-6xl font-extrabold">{s.espacio}</p>
           </div>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-left text-sm sm:grid-cols-4">
+            <div className="rounded-lg bg-slate-50 p-2"><p className="text-xs text-slate-500">Placa</p><p className="placa">{s.placa}</p></div>
+            <div className="rounded-lg bg-slate-50 p-2"><p className="text-xs text-slate-500">Tipo</p><p className="font-bold">{textoTipo(s.tipo_vehiculo)}</p></div>
+            <div className="rounded-lg bg-slate-50 p-2"><p className="text-xs text-slate-500">Entrada</p><p className="font-bold">{hora(s.fecha_entrada)}</p></div>
+            <div className="rounded-lg bg-slate-50 p-2"><p className="text-xs text-slate-500">Visita</p><p className="font-bold">{resultado.vehiculoNuevo ? 'Primera' : `N.º ${resultado.visitas + 1}`}</p></div>
+          </div>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
+            {s.cliente ? <Insignia color="marino">{s.cliente}</Insignia> : <Insignia>{resultado.vehiculoNuevo ? 'Vehículo nuevo' : 'Cliente ocasional'}</Insignia>}
             {resultado.clienteFrecuente && <Insignia color="ambar"><Star className="h-3 w-3" />Cliente frecuente</Insignia>}
-            {s.cliente && <Insignia color="marino">{s.cliente}</Insignia>}
-            <Insignia color={resultado.tarifaVigente.porcentaje > 0 ? 'ambar' : 'gris'}>Tarifa {dinero(resultado.tarifaVigente.valorHora)}/h</Insignia>
+            <Insignia color={resultado.tarifaVigente.porcentaje > 0 ? 'ambar' : resultado.tarifaVigente.porcentaje < 0 ? 'verde' : 'gris'}>
+              Tarifa {dinero(resultado.tarifaVigente.valorHora)}/h{resultado.tarifaVigente.porcentaje ? ` (${resultado.tarifaVigente.porcentaje > 0 ? '+' : ''}${resultado.tarifaVigente.porcentaje}%)` : ''}
+            </Insignia>
           </div>
           {resultado.correo.enviado && <p className="mt-3 flex items-center justify-center gap-1 text-sm text-libre-oscuro"><Mail className="h-4 w-4" /> Ticket enviado a {resultado.correo.destino}</p>}
         </div>
         <div id="ticket-imprimible"><TicketQR sesion={s} qr={resultado.qr} tarifaHora={resultado.tarifaVigente.valorHora} /></div>
         <div className="grid grid-cols-2 gap-2">
           <Boton variante="secundario" icono={Printer} onClick={() => window.print()}>Imprimir ticket</Boton>
-          <Boton icono={Plus} onClick={nuevaEntrada}>Nueva entrada</Boton>
+          <Boton icono={modo === 'auto' ? Radar : Plus} onClick={nuevaEntrada}>Siguiente vehículo</Boton>
         </div>
         {!s.cliente && <Boton variante="fantasma" className="w-full" icono={UserPlus} onClick={() => setRegistrarCliente(true)}>Registrar datos del cliente (opcional)</Boton>}
         {registrarCliente && <FormularioCliente placaInicial={s.placa} tipoInicial={s.tipo_vehiculo} alCerrar={() => setRegistrarCliente(false)} alGuardar={() => setRegistrarCliente(false)} />}
@@ -109,6 +140,27 @@ export default function Entrada() {
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Registrar entrada</h1>
 
+      {lpr.datos?.datos.configurado && (
+        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Modo de registro">
+          <Boton variante={modo === 'auto' ? 'primario' : 'secundario'} icono={Radar} onClick={() => setModo('auto')}>Automático</Boton>
+          <Boton variante={modo === 'manual' ? 'primario' : 'secundario'} icono={Keyboard} onClick={() => setModo('manual')}>Manual</Boton>
+        </div>
+      )}
+
+      {modo === 'auto' && lpr.datos?.datos.configurado ? (
+        <div className="space-y-3">
+          <GaritaAutomatica alDetectar={entradaAutomatica} textoEspera="Esperando vehículo en la entrada..." />
+          {historialAuto.length === 0 ? (
+            <p className="text-center text-sm text-slate-500">Cuando un vehículo se detenga frente a la cámara, la entrada se registrará sola y se mostrará el ticket.</p>
+          ) : historialAuto.map((h) => (
+            <div key={h.id} className="tarjeta flex items-center gap-3 border-ocupado/40 p-4">
+              <XCircle className="h-6 w-6 shrink-0 text-ocupado" />
+              <div><p className="placa">{h.placa}</p><p className="text-xs text-ocupado-oscuro">{h.mensaje}</p></div>
+            </div>
+          ))}
+        </div>
+      ) : (
+      <>
       {lpr.datos?.datos.configurado
         ? <CamaraPlaca alLeer={alLeerPlaca} alError={(m) => toast.error(m)} />
         : lpr.datos && <Alerta tipo="info" titulo="Lectura de placas no configurada">Escriba la placa manualmente. Para activar la cámara configure PLATE_RECOGNIZER_TOKEN en el backend.</Alerta>}
@@ -167,6 +219,8 @@ export default function Entrada() {
 
         <Boton tamano="lg" className="w-full" cargando={registrando} disabled={!placaValida} onClick={registrar}>Confirmar entrada</Boton>
       </div>
+      </>
+      )}
     </div>
   );
 }

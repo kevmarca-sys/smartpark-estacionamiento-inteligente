@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Banknote, CheckCircle2, FileText, Keyboard, Landmark, QrCode, Search } from 'lucide-react';
-import { abrirPdf, sesionesApi } from '../../api/servicios';
+import { Banknote, CheckCircle2, FileText, Keyboard, Landmark, QrCode, Radar, Search } from 'lucide-react';
+import { abrirPdf, lprApi, sesionesApi } from '../../api/servicios';
+import useApi from '../../hooks/useApi';
+import GaritaAutomatica from '../../components/parqueadero/GaritaAutomatica';
 import EscanerQR from '../../components/parqueadero/EscanerQR';
 import DesgloseCobro from '../../components/parqueadero/DesgloseCobro';
 import { Alerta, Boton, Campo, Confirmar } from '../../components/ui';
@@ -19,6 +21,8 @@ export default function Salida() {
   const [confirmar, setConfirmar] = useState(false);
   const [cobrando, setCobrando] = useState(false);
   const [pagado, setPagado] = useState(null);
+  const lpr = useApi(() => lprApi.estado(), []);
+  const lprActivo = Boolean(lpr.datos?.datos.configurado);
 
   async function consultar(texto) {
     if (!texto?.trim() || consultando) return;
@@ -119,9 +123,10 @@ export default function Salida() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Registrar salida</h1>
-      <div className="grid grid-cols-2 gap-2">
-        <Boton variante={modo === 'camara' ? 'primario' : 'secundario'} icono={QrCode} onClick={() => setModo('camara')}>Escanear QR</Boton>
-        <Boton variante={modo === 'manual' ? 'primario' : 'secundario'} icono={Keyboard} onClick={() => setModo('manual')}>Código manual</Boton>
+      <div className={`grid gap-2 ${lprActivo ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        {lprActivo && <Boton variante={modo === 'placa' ? 'primario' : 'secundario'} icono={Radar} onClick={() => setModo('placa')}>Placa</Boton>}
+        <Boton variante={modo === 'camara' ? 'primario' : 'secundario'} icono={QrCode} onClick={() => setModo('camara')}>QR</Boton>
+        <Boton variante={modo === 'manual' ? 'primario' : 'secundario'} icono={Keyboard} onClick={() => setModo('manual')}>Manual</Boton>
       </div>
 
       {error && (
@@ -130,14 +135,19 @@ export default function Salida() {
         </Alerta>
       )}
 
-      {modo === 'camara' ? (
+      {modo === 'placa' ? (
+        <>
+          <GaritaAutomatica alDetectar={(l) => consultar(l.placa)} textoEspera="Esperando vehículo en la salida..." />
+          <p className="text-center text-sm text-slate-500">La cámara lee la placa y busca su ticket automáticamente (sin QR).</p>
+        </>
+      ) : modo === 'camara' ? (
         <>
           <EscanerQR alLeer={consultar} />
           <p className="text-center text-sm text-slate-500">{consultando ? 'Consultando ticket...' : 'Apunte la cámara al código QR del ticket'}</p>
         </>
       ) : (
         <form className="tarjeta space-y-3 p-4" onSubmit={(e) => { e.preventDefault(); consultar(codigoManual); }}>
-          <Campo etiqueta="Código del ticket" value={codigoManual} onChange={(e) => setCodigoManual(e.target.value.toUpperCase())} placeholder="TK-XXXXXXXX" />
+          <Campo etiqueta="Código del ticket o placa" value={codigoManual} onChange={(e) => setCodigoManual(e.target.value.toUpperCase())} placeholder="TK-XXXXXXXX o ABC-1234" />
           <Boton type="submit" className="w-full" icono={Search} cargando={consultando}>Buscar ticket</Boton>
         </form>
       )}

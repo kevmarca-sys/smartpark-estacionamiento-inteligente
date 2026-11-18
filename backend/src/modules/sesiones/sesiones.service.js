@@ -13,6 +13,7 @@ const { calcularTarifa, tarifaVigente } = require('../../utils/calculadoraTarifa
 const { tiposEspacioPermitidos, esCompatible } = require('../../utils/compatibilidad');
 const { obtenerPaginacion, respuestaPaginada } = require('../../utils/paginacion');
 const { generarQrDataUrl, urlTicket } = require('../../services/qr');
+const { normalizarPlaca, esPlacaValida } = require('../../utils/validadores');
 const { emitirCambio, emitirTicket } = require('../../services/socket');
 const { enviarTicket } = require('../../services/correo');
 
@@ -31,6 +32,26 @@ function extraerCodigo(texto) {
   const valor = String(texto || '').trim();
   const coincidencia = valor.match(/TK-[A-Z0-9]{3,12}/i);
   return coincidencia ? coincidencia[0].toUpperCase() : valor.toUpperCase();
+}
+
+/**
+ * Salida por placa: si lo leído es una placa (cámara LPR en la salida),
+ * se busca la sesión ABIERTA de ese vehículo. Así el cliente no necesita el ticket.
+ */
+async function resolverCodigo(texto) {
+  const valor = String(texto || '').trim();
+  if (/TK-[A-Z0-9]{3,12}/i.test(valor)) return extraerCodigo(valor);
+  const placa = normalizarPlaca(valor);
+  if (esPlacaValida(placa)) {
+    const r = await query(
+      `SELECT s.codigo_ticket FROM sesiones s JOIN vehiculos v ON v.id = s.vehiculo_id
+        WHERE v.placa = $1 AND s.estado = 'ABIERTA'`,
+      [placa],
+    );
+    if (!r.rows[0]) throw AppError.notFound(`El vehículo ${placa} no tiene una sesión abierta`);
+    return r.rows[0].codigo_ticket;
+  }
+  return extraerCodigo(valor);
 }
 
 async function listar(q) {
@@ -177,7 +198,7 @@ function validarAbierta(sesion) {
 
 /** Vista previa del cobro (al escanear el QR en la salida). */
 async function consultarSalida(textoEscaneado) {
-  const codigo = extraerCodigo(textoEscaneado);
+  const codigo = await resolverCodigo(textoEscaneado);
   const sesion = await repo.buscarPorCodigo(codigo);
   if (!sesion) throw AppError.notFound(`No existe el ticket ${codigo}`);
   validarAbierta(sesion); // regla: la salida debe corresponder a un ingreso activo
@@ -193,7 +214,7 @@ async function consultarSalida(textoEscaneado) {
  *  - Un ticket no se puede cobrar dos veces (FOR UPDATE + UNIQUE en pagos).
  * ------------------------------------------------------------------- */
 async function registrarSalida(ctx, textoEscaneado, { metodo, referencia }) {
-  const codigo = extraerCodigo(textoEscaneado);
+  const codigo = await resolverCodigo(textoEscaneado);
 
   const sesionId = await withTransaction(async (db) => {
     const bloqueada = await repo.bloquearPorCodigo(db, codigo);

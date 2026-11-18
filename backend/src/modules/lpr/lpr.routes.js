@@ -27,9 +27,13 @@ router.get('/estado', (_req, res) => {
 router.post('/leer', subir.single('imagen'), async (req, res) => {
   if (!req.file) throw AppError.badRequest('Envíe la imagen de la placa en el campo "imagen"');
   const lectura = await leerPlaca(req.file.buffer, req.file.mimetype);
-  await auditoria.registrar(contexto(req), {
-    accion: 'LECTURA_PLACA', entidad: 'lpr', registroId: lectura.placa, detalle: { confianza: lectura.confianza, confiable: lectura.confiable },
-  });
+  // En modo automático solo se auditan las lecturas confiables (evita llenar la auditoría)
+  if (req.query.modo !== 'auto' || lectura.confiable) {
+    await auditoria.registrar(contexto(req), {
+      accion: 'LECTURA_PLACA', entidad: 'lpr', registroId: lectura.placa,
+      detalle: { confianza: lectura.confianza, confiable: lectura.confiable, modo: req.query.modo === 'auto' ? 'AUTOMATICO' : 'MANUAL' },
+    });
+  }
   res.json({ ok: true, datos: lectura });
 });
 

@@ -60,10 +60,10 @@ export const usuariosApi = {
 
 export const lprApi = {
   estado: () => datos(http.get('/lpr/estado')),
-  leer: (archivo) => {
+  leer: (archivo, modo) => {
     const form = new FormData();
     form.append('imagen', archivo, 'placa.jpg');
-    return datos(http.post('/lpr/leer', form));
+    return datos(http.post('/lpr/leer', form, { params: modo ? { modo } : undefined }));
   },
 };
 
