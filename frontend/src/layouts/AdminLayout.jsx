@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import IndicadorEnVivo from '../components/IndicadorEnVivo';
+import BotonesPreferencias from '../components/BotonesPreferencias';
 
 const MENU = [
   { a: '/admin', texto: 'Panel en vivo', icono: LayoutDashboard, fin: true },
@@ -68,6 +69,7 @@ export default function AdminLayout() {
         </form>
         <div className="ml-auto flex items-center gap-3">
           <IndicadorEnVivo />
+          <BotonesPreferencias />
           <div className="hidden text-right sm:block">
             <p className="text-sm font-semibold text-tinta">{usuario?.nombre}</p>
             <p className="text-xs text-slate-500">Administrador</p>

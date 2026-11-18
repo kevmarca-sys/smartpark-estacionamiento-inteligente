@@ -10,6 +10,7 @@ import { Home, LayoutDashboard, LogIn, LogOut, ParkingSquare, QrCode, Ticket } f
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import IndicadorEnVivo from '../components/IndicadorEnVivo';
+import BotonesPreferencias from '../components/BotonesPreferencias';
 
 export default function GuardiaLayout() {
   const { usuario, esAdmin, cerrarSesion } = useAuth();
@@ -26,6 +27,7 @@ export default function GuardiaLayout() {
         <Logo subtitulo={`Garita · ${usuario?.nombre || ''}`} />
         <div className="flex items-center gap-2">
           <IndicadorEnVivo />
+          <BotonesPreferencias sobreOscuro />
           {esAdmin && <NavLink to="/admin" className="rounded-lg bg-white/10 p-2 text-white" aria-label="Panel de administración"><LayoutDashboard className="h-5 w-5" /></NavLink>}
         </div>
       </header>

@@ -10,6 +10,7 @@ import { Eye, EyeOff, Lock, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Alerta, Boton } from '../../components/ui';
 import Logo from '../../components/Logo';
+import BotonesPreferencias from '../../components/BotonesPreferencias';
 
 export default function Login() {
   const { usuario, iniciarSesion } = useAuth();
@@ -63,7 +64,8 @@ export default function Login() {
         <p className="relative text-xs text-blue-200">© 2026 SmartPark – Cuenca, Ecuador</p>
       </section>
 
-      <section className="flex items-center justify-center p-6">
+      <section className="relative flex items-center justify-center p-6">
+        <div className="absolute right-4 top-4"><BotonesPreferencias /></div>
         <div className="w-full max-w-sm">
           <div className="mb-8 lg:hidden"><Logo claro={false} /></div>
           <h2 className="text-2xl font-bold text-tinta">Iniciar sesión</h2>

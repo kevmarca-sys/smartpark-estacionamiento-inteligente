@@ -20,7 +20,7 @@ export default function IndicadorEnVivo() {
     return () => { s.off('connect', on); s.off('disconnect', off); };
   }, []);
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${conectado ? 'bg-libre-claro text-green-800' : 'bg-slate-100 text-slate-500'}`}>
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold ${conectado ? 'bg-libre-claro text-green-800' : 'bg-slate-100 text-slate-500'}`}>
       <span className={`h-2 w-2 rounded-full ${conectado ? 'animate-pulse bg-libre' : 'bg-slate-400'}`} />
       {conectado ? 'EN VIVO' : 'SIN CONEXIÓN'}
     </span>

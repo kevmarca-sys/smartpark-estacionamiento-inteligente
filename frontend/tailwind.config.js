@@ -1,5 +1,6 @@
 /** Colores y tipografía tomados del Design System de Stitch (DESIGN.md) */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
