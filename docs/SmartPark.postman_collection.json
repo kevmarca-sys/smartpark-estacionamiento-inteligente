@@ -1,0 +1,1335 @@
+{
+  "info": {
+    "name": "SmartPark API - Pruebas del examen",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecute primero la carpeta 0 (login). Luego cada carpeta corresponde a los escenarios exigidos en la guía del examen."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000"
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "tokenGuardia",
+      "value": ""
+    },
+    {
+      "key": "ticket",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Autenticación",
+      "item": [
+        {
+          "name": "Login ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"admin\",\n  \"password\": \"Admin123*\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenAdmin', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login GUARDIA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"guardia\",\n  \"password\": \"Guardia123*\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('tokenGuardia', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Escenarios correctos",
+      "item": [
+        {
+          "name": "C1 - Entrada con asignación automática",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/entrada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "entrada"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"AXY-2026\",\n  \"tipo\": \"AUTO\",\n  \"metodoRegistro\": \"MANUAL\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('ticket', pm.response.json().datos.sesion.codigo_ticket);",
+                  "pm.test('Asigna espacio automáticamente', () => pm.expect(pm.response.json().datos.asignacion).to.eql('AUTOMATICA'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C2 - Consultar cobro del ticket",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/{{ticket}}/cobro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "{{ticket}}",
+                "cobro"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C3 - Registrar pago y salida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/{{ticket}}/salida",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "{{ticket}}",
+                "salida"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"EFECTIVO\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C4 - Registrar cliente con vehículo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "Si ya lo ejecutó antes devolverá 409 (duplicado).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Daniela Calle\",\n  \"cedula\": \"0102030400\",\n  \"correo\": \"daniela.calle@correo.ec\",\n  \"telefono\": \"0991122334\",\n  \"vehiculo\": {\n    \"placa\": \"ACD-7788\",\n    \"tipo\": \"AUTO\"\n  }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C5 - Reporte con filtros",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reportes/resumen?tipoVehiculo=AUTO",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reportes",
+                "resumen"
+              ],
+              "query": [
+                {
+                  "key": "tipoVehiculo",
+                  "value": "AUTO"
+                }
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C6 - Sesiones con filtros, orden y paginación",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones?estado=CERRADA&metodo=EFECTIVO&ordenarPor=total&direccion=desc&pagina=1&limite=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "CERRADA"
+                },
+                {
+                  "key": "metodo",
+                  "value": "EFECTIVO"
+                },
+                {
+                  "key": "ordenarPor",
+                  "value": "total"
+                },
+                {
+                  "key": "direccion",
+                  "value": "desc"
+                },
+                {
+                  "key": "pagina",
+                  "value": "1"
+                },
+                {
+                  "key": "limite",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Errores y datos inválidos",
+      "item": [
+        {
+          "name": "E1 - Placa con formato inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/entrada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "entrada"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"12-XX\",\n  \"tipo\": \"AUTO\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "E2 - Campos obligatorios vacíos (cliente)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "E3 - Cédula inválida (dígito verificador)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Pedro Prueba\",\n  \"cedula\": \"0104567890\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "E4 - Ticket inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/TK-NOEXISTE/cobro",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "TK-NOEXISTE",
+                "cobro"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "E5 - Transferencia sin comprobante",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/TK-DEMO002/salida",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "TK-DEMO002",
+                "salida"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"TRANSFERENCIA\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "E6 - Rango de fechas inválido",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reportes/resumen?desde=2026-12-31&hasta=2026-01-01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reportes",
+                "resumen"
+              ],
+              "query": [
+                {
+                  "key": "desde",
+                  "value": "2026-12-31"
+                },
+                {
+                  "key": "hasta",
+                  "value": "2026-01-01"
+                }
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Acceso no autenticado / no autorizado",
+      "item": [
+        {
+          "name": "A1 - Sin token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/espacios",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "espacios"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A2 - Guardia intenta cambiar tarifa",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tarifas/AUTO",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tarifas",
+                "AUTO"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"valorHora\": 5,\n  \"fraccionMinutos\": 15,\n  \"minutosGracia\": 10,\n  \"topeDiario\": 20\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A3 - Guardia intenta ver reportes de ingresos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reportes/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reportes",
+                "dashboard"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A4 - Login con contraseña incorrecta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"admin\",\n  \"password\": \"incorrecta\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Reglas de negocio",
+      "item": [
+        {
+          "name": "R1 - No asignar espacio OCUPADO (A3)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/entrada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "entrada"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"AXZ-1111\",\n  \"tipo\": \"AUTO\",\n  \"espacioCodigo\": \"A3\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "R2 - No asignar espacio INHABILITADO (B14)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/entrada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "entrada"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"AXZ-1111\",\n  \"tipo\": \"AUTO\",\n  \"espacioCodigo\": \"B14\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "R3 - Espacio permitido (caso correcto)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/entrada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "entrada"
+              ]
+            },
+            "description": "Si B10 ya está ocupado elija otro espacio libre.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"AXZ-1111\",\n  \"tipo\": \"AUTO\",\n  \"espacioCodigo\": \"B10\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "R4 - Tipo incompatible (auto en espacio de discapacidad)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/entrada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "entrada"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"AXW-2222\",\n  \"tipo\": \"AUTO\",\n  \"espacioCodigo\": \"A1\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "R5 - No inhabilitar un espacio ocupado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/espacios/3/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "espacios",
+                "3",
+                "estado"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"INHABILITADO\",\n  \"motivo\": \"Prueba de mantenimiento\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "R6 - Simulador de tarifa dinámica",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tarifas/simular",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tarifas",
+                "simular"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoVehiculo\": \"AUTO\",\n  \"fechaEntrada\": \"2026-11-20T17:30:00-05:00\",\n  \"fechaSalida\": \"2026-11-20T19:45:00-05:00\",\n  \"ocupacion\": 85,\n  \"visitasPrevias\": 12\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Duplicidad e inconsistencia",
+      "item": [
+        {
+          "name": "D1 - Vehículo con sesión abierta (ABA-1234)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/entrada",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "entrada"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"ABA-1234\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "D2 - Cobrar dos veces el mismo ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesiones/{{ticket}}/salida",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "sesiones",
+                "{{ticket}}",
+                "salida"
+              ]
+            },
+            "description": "Ejecute antes C1 y C3.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenGuardia}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"metodo\": \"EFECTIVO\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "D3 - Placa ya asociada a otro cliente (transacción revertida)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tokenAdmin}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombres\": \"Cliente Prueba\",\n  \"cedula\": \"0110000007\",\n  \"vehiculo\": {\n    \"placa\": \"ABA-1234\",\n    \"tipo\": \"AUTO\"\n  }\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 409', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
